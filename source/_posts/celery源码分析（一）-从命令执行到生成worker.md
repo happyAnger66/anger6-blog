@@ -16,7 +16,7 @@ date: 2019-05-12 10:36:45
 
 下面是涉及到的对象的时序图：
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/c1.jpg)
+![](/images/wp-content/uploads/2019/05/c1.jpg)
 
 对照时序图，主要过程如下：
 
