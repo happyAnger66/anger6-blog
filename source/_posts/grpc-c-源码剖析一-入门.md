@@ -27,7 +27,7 @@ date: 2019-10-22 15:08:00
 
 2.很多高级的抽象
 
-gRPC的源码为了简化异步代码的编写，同时为了更好的代码复用。设计了许多高级的数据结构。如grpc\_closure,grpc\_closure\_scheduler,ExecCtx,grpc\_combiner,grpc\_completion\_queue等。如果不能很好地理解这些高级数据结构的作用和原理，阅读起代码来也会事倍功半。
+gRPC的源码为了简化异步代码的编写，同时为了更好的代码复用。设计了许多高级的数据结构。如grpc_closure,grpc_closure_scheduler,ExecCtx,grpc_combiner,grpc_completion_queue等。如果不能很好地理解这些高级数据结构的作用和原理，阅读起代码来也会事倍功半。
 
 3.大量的设计模式
 
@@ -35,7 +35,7 @@ gRPC的源码为了简化异步代码的编写，同时为了更好的代码复�
 
 4.异步编程
 
-grpc核心库采用reactor设计模式，如grpc\_closure就是为了方便异步编程而设计的数据结构。
+grpc核心库采用reactor设计模式，如grpc_closure就是为了方便异步编程而设计的数据结构。
 
 5.高性能
 

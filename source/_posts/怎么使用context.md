@@ -117,7 +117,7 @@ server程序处理像`/search?q=golang`这样的url请求.我们注册handleSear
 
 下面是具体的代码：
 
-func handleSearch(w http.ResponseWriter, req \*http.Request) {
+func handleSearch(w http.ResponseWriter, req *http.Request) {
     // ctx是这个handler使用的Context.调用cancel来关闭ctx.Done channel,这个handler发起的所有操作都会收到取消信号.
     var (
         ctx    context.Context
@@ -184,8 +184,8 @@ const userIPKey key = 0
 
 *   `FromRequest`从http.Request里解析userIP.
 
-func FromRequest(req \*http.Request) (net.IP, error) {
-    ip, \_, err := net.SplitHostPort(req.RemoteAddr)
+func FromRequest(req *http.Request) (net.IP, error) {
+    ip, _, err := net.SplitHostPort(req.RemoteAddr)
     if err != nil {
         return nil, fmt.Errorf("userip: %q is not IP:port", req.RemoteAddr)
     }
@@ -229,7 +229,7 @@ func Search(ctx context.Context, query string) (Results, error) {
 *   Search使用了httpDo这个帮助函数用于提交http请求,并在ctx.Done时取消正在进行的处理.Search向httpDo传递了一个闭包函数用于处理HTTP响应:
 
  var results Results
-    err = httpDo(ctx, req, func(resp \*http.Response, err error) error {
+    err = httpDo(ctx, req, func(resp *http.Response, err error) error {
         if err != nil {
             return err
         }
@@ -239,7 +239,7 @@ func Search(ctx context.Context, query string) (Results, error) {
         // https://developers.google.com/web-search/docs/#fonje
         var data struct {
             ResponseData struct {
-                Results \[\]struct {
+                Results []struct {
                     TitleNoFormatting string
                     URL               string
                 }
@@ -248,7 +248,7 @@ func Search(ctx context.Context, query string) (Results, error) {
         if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
             return err
         }
-        for \_, res := range data.ResponseData.Results {
+        for _, res := range data.ResponseData.Results {
             results = append(results, Result{Title: res.TitleNoFormatting, URL: res.URL})
         }
         return nil
@@ -258,7 +258,7 @@ func Search(ctx context.Context, query string) (Results, error) {
 
 *   `httpDo`函数在一个新的goroutine里发起HTTP请求并处理响应.如果在goroutine退出之前ctx.Done则取消请求。
 
-func httpDo(ctx context.Context, req \*http.Request, f func(\*http.Response, error) error) error {
+func httpDo(ctx context.Context, req *http.Request, f func(*http.Response, error) error) error {
     // 在一个goroutine里处理HTTP请求并将响应交给f处理.
     c := make(chan error, 1)
     req = req.WithContext(ctx)

@@ -21,5 +21,5 @@ sudo make install
 
 如果你自己创建了一个开源项目，自己手工编写Makefile的痛苦可想而知，因此还是用autools吧，如果正好你不太好用。就用下面的脚本生成吧。
 
-[https://github.com/happyAnger6/anger6\_autotools.git](https://github.com/happyAnger6/anger6_autotools.git)  
+[https://github.com/happyAnger6/anger6_autotools.git](https://github.com/happyAnger6/anger6_autotools.git)  
 ————————————————

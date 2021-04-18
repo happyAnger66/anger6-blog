@@ -32,25 +32,25 @@ gRPC核心库自己不会创建任何线程，线程的创建取决于使用gRPC
 
 一个文件描述符fd可以加入到多个cq中.
 
-当epoll\_set上有事件产生时，有多个线程可能被唤醒，不能保证哪个线程最终执行事件相关的callbacks.
+当epoll_set上有事件产生时，有多个线程可能被唤醒，不能保证哪个线程最终执行事件相关的callbacks.
 
 执行工作的线程最终会向合适的cq中放入一个completion event（完成事件，后面简称`ce`）`grpc_cq_completion`，然后将对这个ce感兴趣的线程"kicks"(唤醒，一般使用eventfd实现).这里需要注意的是这个线程可能是自己。
 
 #### 举个例子：
 
   
-假设上图中的fd\_1变为可读状态，Thread1~ThreadK, ThreadP都有可能被唤醒。
+假设上图中的fd_1变为可读状态，Thread1~ThreadK, ThreadP都有可能被唤醒。
 
 我们假设ThreadP因为关心fd1上的事件而调用了`grpc_completion_queue_pluck()`,但是被唤醒的是Thread1。
 
-在这种情况下，_Thread1_执行完相应的callbacks后并最终通过event\_fd\_P来唤醒"kicks " _ThreadP_.
+在这种情况下，_Thread1_执行完相应的callbacks后并最终通过event_fd_P来唤醒"kicks " _ThreadP_.
 
 _ThreadP_被唤醒，然后知道有一个ce并将它返回给`grpc_completion_queue_pluck()`的调用者。
 
 ### 当前架构的问题  
 惊群效应
 
-#### 今天儿有点儿晚了，明天继续吧。^\_^
+#### 今天儿有点儿晚了，明天继续吧。^_^
 
 作者：self-motivation  
 来源：CSDN  

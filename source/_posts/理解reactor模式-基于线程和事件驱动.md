@@ -3,8 +3,7 @@ title: '理解Reactor模式: 基于线程和事件驱动'
 tags: []
 id: '1529'
 categories:
-  - - 系统架构
-  - - system_arch
+    - 系统架构
     - 高并发
 date: 2019-07-23 12:41:47
 ---

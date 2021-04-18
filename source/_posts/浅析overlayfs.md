@@ -32,21 +32,21 @@ mount -t overlay overlay -o lowerdir=/root/lowerdir/,upperdir=/root/overlayt/upp
 
 其中lowerdir目录中的内容如下:
 
-\[root@localhost overlayt\]
+[root@localhost overlayt]
 
-\# ls -l /root/lowerdir/
+# ls -l /root/lowerdir/
 
 总用量 4
 
-\-rw-r--r-- 1 root root 4 3月  15 18:35 1
+-rw-r--r-- 1 root root 4 3月  15 18:35 1
 
-\-rw-r--r-- 1 root root 0 3月  15 18:35 2
+-rw-r--r-- 1 root root 0 3月  15 18:35 2
 
-\-rw-r--r-- 1 root root 0 3月  15 18:35 3
+-rw-r--r-- 1 root root 0 3月  15 18:35 3
 
 drwxr-xr-x 2 root root 6 3月  15 18:35 4
 
-\[root@localhost overlayt\]
+[root@localhost overlayt]
 
 #
 
@@ -80,11 +80,11 @@ readdir
 这意味着，merged的变化在dir打开期间不会体现，对于很多程序容易忽略这一点。
 
 非目录  
-对于非目录对象（文件，符号链接，特殊设备文件）。当对lowdir的对象进行写操作时，会先进行copy\_up操作。创建硬链接也需要copy\_up,软链接则不需要。
+对于非目录对象（文件，符号链接，特殊设备文件）。当对lowdir的对象进行写操作时，会先进行copy_up操作。创建硬链接也需要copy_up,软链接则不需要。
 
-copy\_up有时可能不需要，比如以read-write方式打开而实际上并没有进行修改.
+copy_up有时可能不需要，比如以read-write方式打开而实际上并没有进行修改.
 
-copy\_up处理的过程大致如下:
+copy_up处理的过程大致如下:
 
 按需创建目录结构  
 用相同的元数据创建文件对象  
@@ -92,7 +92,7 @@ copy\_up处理的过程大致如下:
 拷贝扩展属性  
  
 
-copy\_up完成之后,overlayfs就可以简单的在upper文件系统上提供对对象的访问。
+copy_up完成之后,overlayfs就可以简单的在upper文件系统上提供对对象的访问。
 
 多个lower layers  
 我们可以通过":"来指定多个lower layers.
@@ -104,11 +104,11 @@ copy\_up完成之后,overlayfs就可以简单的在upper文件系统上提供对
 多个lower layers从右边依次入栈，按照在栈中的顺序在merge中体现。lower3在最底层，lower1在是顶层.
 
 非标准行为  
-copy\_up操作创建了一个新的文件。新文件可能处于和老文件不同的文件系统中,因此st\_dev,st\_ino都是新的。
+copy_up操作创建了一个新的文件。新文件可能处于和老文件不同的文件系统中,因此st_dev,st_ino都是新的。
 
-在copy\_up之前老文件上的文件锁不会copy\_up
+在copy_up之前老文件上的文件锁不会copy_up
 
-如果一个有多个硬链接的文件被copy\_up,那么会打断这种链接。改变不会传播给相同硬链接文件。
+如果一个有多个硬链接的文件被copy_up,那么会打断这种链接。改变不会传播给相同硬链接文件。
 
 修改底层underlay文件系统  
 线下修改，当overlay没有mount时，允许修改upper,lower目录

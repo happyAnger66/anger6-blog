@@ -11,7 +11,7 @@ date: 2020-02-23 03:40:38
 
 python也提供了线程相关的并发原语，如锁threading.Lock，事件threading.Event，条件变量threading.Condition。
 
-本质上都是对pthread\_mutex\_t, pthread\_condition\_t的封装。
+本质上都是对pthread_mutex_t, pthread_condition_t的封装。
 
 本篇文章通过2个例子来分析理解python中如何控制并发。
 
@@ -36,7 +36,7 @@ print(i, name)
 i += 2  
 time.sleep(1)  
 with notify:  
-notify.notify\_all()
+notify.notify_all()
 
 t1 = threading.Thread(target=prt, args=(0, c1, c2, "thread1", )) #等待通知交替传递  
 t2 = threading.Thread(target=prt, args=(1, c2, c1, "thread2", ))
@@ -45,7 +45,7 @@ t1.start()
 t2.start()
 
 with c1: #选择一个线程先运行  
-c1.notify\_all()
+c1.notify_all()
 
 t1.join()  
 t2.join()
@@ -56,11 +56,11 @@ t2.join()
 import threading
 
 class RingQueue:  
-def **init**(self, maxsize):  
-self._maxsize = maxsize self.\_tail = 0 self.\_head = 0 self.\_len = 0 self.\_queue = \[None for_ in range(maxsize)\]  
-self.\_mutex = threading.Lock() #控制并发访问的线程锁  
-self.not\_full = threading.Condition(self.\_mutex) #等待队列有空闲位置  
-self.not\_empty = threading.Condition(self.\_mutex) #等待队列有数据
+def init(self, maxsize):  
+self._maxsize = maxsize self._tail = 0 self._head = 0 self._len = 0 self._queue = [None for_ in range(maxsize)]  
+self._mutex = threading.Lock() #控制并发访问的线程锁  
+self.not_full = threading.Condition(self._mutex) #等待队列有空闲位置  
+self.not_empty = threading.Condition(self._mutex) #等待队列有数据
 
 ```
 def put(self, item):
@@ -115,39 +115,39 @@ t2.join()
 
 我们可以通过在队列中加入另一个条件变量来实现
 
-self.all\_tasks\_done = threading.Condition(self.mutex)  
-self.unfinished\_tasks = 0  
+self.all_tasks_done = threading.Condition(self.mutex)  
+self.unfinished_tasks = 0  
 注意，这个新的条件变量和之前用于协调队列长度的锁是同一把锁。
 
 然后增加下面2个方法：
 
-def task\_done(self):  
+def task_done(self):  
 '''  
   当我们从队列中取出一个任务，并处理完成后调用这个方法.  
 通常消费者在调用get()并完成任务后调用，用于通知正在处理的任务完成.  
 如果当前有一个阻塞的join调用，那么当所有任务处理完成后，会解除阻塞.  
 在调用次数超过队列条目数量时抛出异常.  
 '''  
-with self.all\_tasks\_done:  
-unfinished = self.unfinished\_tasks - 1  
+with self.all_tasks_done:  
+unfinished = self.unfinished_tasks - 1  
 if unfinished <= 0:  
 if unfinished < 0:  
-raise ValueError('task\_done() called too many times')  
-self.all\_tasks\_done.notify\_all()  
-self.unfinished\_tasks = unfinished
+raise ValueError('task_done() called too many times')  
+self.all_tasks_done.notify_all()  
+self.unfinished_tasks = unfinished
 
 def join(self):  
 '''阻塞到队列中的所有条目都被处理完成.  
 '''  
-with self.all\_tasks\_done:  
-while self.unfinished\_tasks:  
-self.all\_tasks\_done.wait()  
-然后我们再修改put方法，每加一个任务都对unfinished\_tasks进行加1.
+with self.all_tasks_done:  
+while self.unfinished_tasks:  
+self.all_tasks_done.wait()  
+然后我们再修改put方法，每加一个任务都对unfinished_tasks进行加1.
 
 def put(self, item):  
-with self.not\_full:  
-while self.\_len == self.\_maxsize:  
-self.not\_full.wait()
+with self.not_full:  
+while self._len == self._maxsize:  
+self.not_full.wait()
 
 ```
         i = self._tail

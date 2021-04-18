@@ -35,7 +35,7 @@ overlay2能够使用的backing filesystems有以下限制:
 
 *   使用btrfs最好在4.7.0内核之上
 
-docker启动后会有一个rootdir,这个是存储管理的根目录，后面讲解的所有目录都以这个目录为基础（敲黑板^\_^)。docker默认会使用/var/lib/docker作为rootdir.
+docker启动后会有一个rootdir,这个是存储管理的根目录，后面讲解的所有目录都以这个目录为基础（敲黑板^_^)。docker默认会使用/var/lib/docker作为rootdir.
 
 从centos7开始，centos默认使用了xfs文件系统，因此使用overlay2的backing filesystem为xfs.由于xfs支持磁盘限额，因此docker会开启磁盘限额功能。这样，我们就能够通过overlay2.size选项来限制磁盘限额。
 
@@ -55,10 +55,10 @@ k8s.gcr.io/kube-apiserver v1.12.0 ab60b017e34f 10 months ago 194MB
 
 "RootFS": {  
 "Type": "layers",  
-"Layers": \[  
+"Layers": [  
 "sha256:f9d9e4e6e2f0689cd752390e14ade48b0ec6f2a488a05af5ab2f9ccaf54c299d",  
 "sha256:0721ca6c51792b8eb63ca980193076c474f474aace1fe56271040279c8147ec7"  
-\]  
+]  
 },
 
 这个RootFS信息就是此镜像的所有layers,可以看到这个镜像有2个layer,并且能看到他们的ID。这里有必要先讲述一个几个ID，先知道它们的作用，后面方便继续。

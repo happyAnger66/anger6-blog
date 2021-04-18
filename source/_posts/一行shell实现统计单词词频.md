@@ -30,7 +30,7 @@ sunny 2
 day 1
 
 代码：  
-cat words.txt tr -s ' ' '\\n' sort uniq -c sort -rnk1 awk '{print $2,$1}'
+cat words.txt tr -s ' ' 'n' sort uniq -c sort -rnk1 awk '{print $2,$1}'
 
 来源：力扣（LeetCode）  
 链接：https://leetcode-cn.com/problems/word-frequency  

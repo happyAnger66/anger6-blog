@@ -57,21 +57,21 @@ end
 
 type.rb:
 
-require\_relative '../puppet/metatype/manager'  
+require_relative '../puppet/metatype/manager'  
   
 module Puppet  
   class Type  
     class << self  
       include Puppet::MetaType::Manager  #Manger模块里的方法都成为Type类的类方法，主要是newtype方法，用于定义新的类  
   
-      attr\_accessor :types           #所有定义的类都保存在@types={}这个hash表里，定义存取器，便于访问验证。  
+      attr_accessor :types           #所有定义的类都保存在@types={}这个hash表里，定义存取器，便于访问验证。  
     end  
   
     def self.initvars                 #初始化一些类实例变量，自定义的类会继承这个方法。  
       @objects = Hash.new  
       @aliases = Hash.new  
   
-      @is\_init = true  
+      @is_init = true  
     end  
   
   end  
@@ -79,41 +79,41 @@ end
 
 metatype/manager.rb:   #此模块主要体现元编程的能力，所以放在metatype目录下，用于产生新的type.
 
-require\_relative '../util'  
-require\_relative '../type'  
-require\_relative '../util/methodhelper'  
-require\_relative '../util/classgen'  
+require_relative '../util'  
+require_relative '../type'  
+require_relative '../util/methodhelper'  
+require_relative '../util/classgen'  
   
 module Puppet::MetaType  
   module Manager  
      include  Puppet::Util::ClassGen  #包含ClassGen模块，这个模块主要是动态生成类的一些方法。如genclass.  
   
     def newtype(name,options={},&block)  
-        unless options.is\_a?(Hash)            #自定义类时的options必须为hash  
+        unless options.is_a?(Hash)            #自定义类时的options必须为hash  
           warn "Puppet::Type.newtype#{name} expects a hash as the second argument,not #{options.inspect}"  
           options = {:parent => options}  
         end  
   
         name = symbolize(name)         #将自定义的类名转化为symbol  
-        newmethod = "new#{name.to\_s}" #定义产生新类对象的方法名，如自定义类:file,则产生这个类对象的方法名newfile  
+        newmethod = "new#{name.to_s}" #定义产生新类对象的方法名，如自定义类:file,则产生这个类对象的方法名newfile  
   
-        selfobj = singleton\_class  #获得当前对象的单例类，注意这里其实是Type类的单例类，取得它的单例类，是为了向Type添加或删除类方法。  
+        selfobj = singleton_class  #获得当前对象的单例类，注意这里其实是Type类的单例类，取得它的单例类，是为了向Type添加或删除类方法。  
   
         @types = {} #如果还没有定义@types，则定义它为hash.这个变量成为Type类的实例变量，用于存储所有自定义的Type类。  
   
         #如果已经定义了同名的类，且定义了newmethod方法，则删除它。  
         if @types.include?(name)  
-          if self.respond\_to?(newmethod)  
-            #caution: remove method from self.singleton\_class not self  
-            selfobj.send(:remove\_method,newmethod)  
+          if self.respond_to?(newmethod)  
+            #caution: remove method from self.singleton_class not self  
+            selfobj.send(:remove_method,newmethod)  
           end  
         end
 
        #将options中的key都转换为符号  
-        options = symbolize\_options(options)
+        options = symbolize_options(options)
 
       #获取自定义的类的父类，并将其从options里删除  
-        if parent = options\[:parent\]  
+        if parent = options[:parent]  
           options.delete(:parent)  
         end
 
@@ -128,11 +128,11 @@ module Puppet::MetaType
         )
 
       #如果Type类里还没定义产生新类的对象的方法，则定义它。  
-        if self.respond\_to?(newmethod)  
-            puts "new#{name.to\_s} is already exists skipping"  
+        if self.respond_to?(newmethod)  
+            puts "new#{name.to_s} is already exists skipping"  
         else  
-            selfobj.send(:define\_method,newmethod) do \*args #注意selfobj是Type类的单例类，所以定义的方法便成为Type类的方法。  
-              kclass.new(\*args)  
+            selfobj.send(:define_method,newmethod) do *args #注意selfobj是Type类的单例类，所以定义的方法便成为Type类的方法。  
+              kclass.new(*args)  
             end  
         end
 
@@ -145,8 +145,8 @@ end
 
 util/classgen.rb:   #产生新类的模块，用于产生新的类，在这一节主要是产生新的Type类，后面还可以看到用它产生新的provider类。
 
-require\_relative '../util'  
-require\_relative '../util/methodhelper'  
+require_relative '../util'  
+require_relative '../util/methodhelper'  
   
 module Puppet::Util::ClassGen  
   include Puppet::Util::MethodHelper  
@@ -158,9 +158,9 @@ module Puppet::Util::ClassGen
   end
 
 #获取常量的名称  
-  def getconst\_string(name,options)  
-    unless const = options\[:constant\]  
-      prefix = options\[:prefix\] ""  
+  def getconst_string(name,options)  
+    unless const = options[:constant]  
+      prefix = options[:prefix] ""  
       const = prefix + name2const(name)  
     end  
   
@@ -168,62 +168,62 @@ module Puppet::Util::ClassGen
   end
 
 #是否定义了这个常量  
-  def is\_const\_defined?(const)  
-    if ::RUBY\_VERSION =~ /1.9/  
-      const\_defined?(const,false)  
+  def is_const_defined?(const)  
+    if ::RUBY_VERSION =~ /1.9/  
+      const_defined?(const,false)  
     else  
-      const\_defined?(const)  
+      const_defined?(const)  
     end  
   end
 
 #给类定义新的常量  
   def handleclassconst(kclass,name,options)  
-     const = getconst\_string(name,options)  
+     const = getconst_string(name,options)  
   
-     if is\_const\_defined?(const)  
-       if options\[:overwrite\]  
-         remove\_const(const)  
+     if is_const_defined?(const)  
+       if options[:overwrite]  
+         remove_const(const)  
        else  
           puts "Class #{const} is already defined in #{self}"  
        end  
      end  
   
-     const\_set(const,kclass)  
+     const_set(const,kclass)  
   end
 
 #初始化一个类,通过这个方法，我们可以看到，自定义类可以给它定义常量，也可以通过模块扩展自定义类的功能。  
   def initclass(kclass,options)  
-    kclass.initvars if kclass.respond\_to?(:initvars) #如果类有initvars方法，则调用它。因为新定义type类的父类是Puppet::Type类，这个类里有initvars方法，所以会调用它。  
+    kclass.initvars if kclass.respond_to?(:initvars) #如果类有initvars方法，则调用它。因为新定义type类的父类是Puppet::Type类，这个类里有initvars方法，所以会调用它。  
   
-    if attrs = options\[:attributes\]  #如果定义新类时指定了attributes则为它定义这类属性的存储器  
-      if attrs.is\_a?(Hash)  
+    if attrs = options[:attributes]  #如果定义新类时指定了attributes则为它定义这类属性的存储器  
+      if attrs.is_a?(Hash)  
         attrs.each do param,value  
-          method = param.to\_s+"="  
-          kclass.send(method,value) if kclass.respond\_to?(method)  
+          method = param.to_s+"="  
+          kclass.send(method,value) if kclass.respond_to?(method)  
         end  
       end  
     end  
   
-    \[:include,:extend\].each do method #如果定义新类时指定了include,extend在模块，它在新类里加载这些模块。可以通过模块扩展自定义的类  
-      if mods = options\[method\]  
-        mods = \[mods\] unless mods.is\_a?(Array)  
+    [:include,:extend].each do method #如果定义新类时指定了include,extend在模块，它在新类里加载这些模块。可以通过模块扩展自定义的类  
+      if mods = options[method]  
+        mods = [mods] unless mods.is_a?(Array)  
         mods.each do mod  
           kclass.send(method,mod)  
         end  
       end  
     end  
   
-    kclass.preinit if kclass.respond\_to?(:preinit)  #最后设置一个钩子，如果新定义的类有preinit方法，则调用它一下下  
+    kclass.preinit if kclass.respond_to?(:preinit)  #最后设置一个钩子，如果新定义的类有preinit方法，则调用它一下下  
   end
 
 #将自定义类存储在@types  
   def stroeclass(kclass,name,options)  
-    if hash = options\[:hash\]  
-      if hash.include?(name) and !options\[:overwrite\]  
+    if hash = options[:hash]  
+      if hash.include?(name) and !options[:overwrite]  
         raise "Already a generated class named #{name}"  
       end  
   
-      hash\[name\] = kclass  
+      hash[name] = kclass  
     end  
   
   
@@ -231,13 +231,13 @@ module Puppet::Util::ClassGen
 
  #这个方法是产生自定义类的方法  
   def genthing(name,type,options,block)  
-     options = symbolize\_options(options)  
+     options = symbolize_options(options)  
   
      name = symbolize(name)  
   
-      options\[:parent\] = self  
-      eval\_method = :class\_eval  
-      kclass = Class.new(options\[:parent\]) do    #产生一个新的自定义类，并给它定义一个实例变量@name  
+      options[:parent] = self  
+      eval_method = :class_eval  
+      kclass = Class.new(options[:parent]) do    #产生一个新的自定义类，并给它定义一个实例变量@name  
         @name = name  
       end  
   
@@ -245,10 +245,10 @@ module Puppet::Util::ClassGen
   
       initclass(kclass,options) #初始化自定义类  
   
-      block = options\[:block\]  
-      kclass.send(eval\_method,&block) if block #将定义类时的block传给产生的类去执行，这样这个block里就可以执行所有Type的类方法。这也是为什么我们可以在自定义类的块里调用newproperty这些方法的原因。  
+      block = options[:block]  
+      kclass.send(eval_method,&block) if block #将定义类时的block传给产生的类去执行，这样这个block里就可以执行所有Type的类方法。这也是为什么我们可以在自定义类的块里调用newproperty这些方法的原因。  
   
-      kclass.postinit if kclass.respond\_to?(:postinit)  #又一个钩子函数，用于初始化完成后进行一些处理工作。  
+      kclass.postinit if kclass.respond_to?(:postinit)  #又一个钩子函数，用于初始化完成后进行一些处理工作。  
   
       stroeclass(kclass,name,options)  #将新定义的类存储起来  
   
@@ -258,7 +258,7 @@ module Puppet::Util::ClassGen
   # "abc" => "Abc"  
   # "123abc" => "123abc"  
   def name2const(name)  
-    name.to\_s.capitalize  
+    name.to_s.capitalize  
   end  
   
   
@@ -269,12 +269,12 @@ util/methodhelper.rb      #util目录主要是一些功能函数，如这�
 
 module Puppet::Util::MethodHelper  
   
-  def symbolize\_options(options)  
+  def symbolize_options(options)  
     options.inject({}) do hash,opts  
-      if opts\[0\].respond\_to? :intern  
-        hash\[opts\[0\].intern\] = opts\[1\]  
+      if opts[0].respond_to? :intern  
+        hash[opts[0].intern] = opts[1]  
       else  
-        hash\[opts\[0\]\] = opts\[1\]  
+        hash[opts[0]] = opts[1]  
       end  
       hash  
     end  
@@ -287,7 +287,7 @@ util.rb: #同理，这里定义了符号化一个变量的操作
 module Puppet  
   module Util  
     def symbolize(value)  
-      if value.respond\_to? :intern then  
+      if value.respond_to? :intern then  
         value.intern  
       else  
         value  
@@ -299,7 +299,7 @@ end
 
 testType.rb
 
-require\_relative './type'  
+require_relative './type'  
   
 Puppet::Type.newtype(:atest) do  
   
@@ -307,13 +307,13 @@ end
   
 Puppet::Type.types.each do name,kclass  
   p kclass.methods  
-  p kclass.instance\_variables  
+  p kclass.instance_variables  
 end
 
 最后我们用testType.rb测试我们的代码，我们定义了一个新类atest。然后遍历Type类的@types变量，查看所有新定义的类的方法和实例变量。运行结果如下:
 
-\[:types, :types=, :initvars, :newatest, :newtype, :genclass, :getconst\_string, :is\_const\_defined?, :handleclassconst, :initclass, :stroeclass, :genthing, :name2const, :symbolize, :symbolize\_options\_,..........\]  
-\[:@name, :@objects, :@aliases, :@is\_init\]
+[:types, :types=, :initvars, :newatest, :newtype, :genclass, :getconst_string, :is_const_defined?, :handleclassconst, :initclass, :stroeclass, :genthing, :name2const, :symbolize, :symbolize_options_,..........]  
+[:@name, :@objects, :@aliases, :@is_init]
 
 可以看到新定义的类从父类Type里继承了许多类方法，并在initvars后产生了自己的实例变量。
 

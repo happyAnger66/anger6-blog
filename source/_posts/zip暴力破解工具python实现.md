@@ -25,7 +25,7 @@ optional arguments:
   -A                  指定密码中包含大写字母..  
   -n                  指定密码中包含数字.  
   -N N              指定密码的长度.  
-  --spec SPEC         单独指定密码中包含的字符，字符串形式,指定密码中包含'.'和'\*',则指定".\*".  
+  --spec SPEC         单独指定密码中包含的字符，字符串形式,指定密码中包含'.'和'*',则指定".*".  
   --filepath FILEPATH  待破解的zip加密文件路径.
 
 ## 使用举例：
@@ -38,7 +38,7 @@ python main.py -n -N 3 D:/xxx.zip
 
 python main.py -a -A -N 10 D:/xxx.zip
 
-*   指定密码由\['!', '@',  '$', '&'\]４个特殊字符构成，密码长度为６位
+*   指定密码由['!', '@',  '$', '&']４个特殊字符构成，密码长度为６位
 
 python main.py -N 10 --spec "!@$&" D:/xxx.zip
 
@@ -50,7 +50,7 @@ python main.py -N 10 --spec "!@$&" D:/xxx.zip
 
 ### python代码:
 
-angerZipDecode\\args.py:
+angerZipDecodeargs.py:
 
 ```
 import argparse
@@ -70,7 +70,7 @@ def setup_args():
 
 ![](http://www.anger6.com/wp-content/uploads/2020/05/image-1.gif)
 
-angerZipDecode\\main.py:
+angerZipDecodemain.py:
 
 ```
 import os
