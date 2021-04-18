@@ -3,9 +3,8 @@ title: python中的并发线程
 tags: []
 id: '2094'
 categories:
-  - - Python
-  - - system_arch
-    - 高并发
+  - - 编程语言
+  - - python
 date: 2020-02-23 03:40:38
 ---
 

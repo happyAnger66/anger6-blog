@@ -3,7 +3,7 @@ title: Ruby实现http自动化测试(三)------Excel
 tags: []
 id: '149'
 categories:
-  - - program_language
+  - - 编程语言
     - Ruby
 date: 2019-05-12 14:04:44
 ---

@@ -3,9 +3,8 @@ title: gRPC C++源码剖析（二）---- 数据结构篇之闭包
 tags: []
 id: '2074'
 categories:
-  - - my_tutorials
+  - - rpc
     - gRPC
-  - - 我的教程
 date: 2019-10-25 15:25:24
 ---
 

@@ -3,9 +3,8 @@ title: 19.Remove Nth Node From End of List
 tags: []
 id: '824'
 categories:
-  - - self_culture
-    - leetcode_meet_me
   - - 自我修养
+    - leetcode_meet_me
 date: 2019-07-04 14:09:53
 ---
 

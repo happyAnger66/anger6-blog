@@ -3,12 +3,8 @@ title: linux epoll实现分析
 tags: []
 id: '1682'
 categories:
-  - - Linux
-  - - linux
-    - 内核活动
-  - - 系统架构
-  - - system_arch
-    - 高并发
+   - 操作系统
+   - linux
 date: 2019-07-27 15:03:17
 ---
 
@@ -138,7 +134,8 @@ epoll内部使用红黑树管理fd,在管理大量fd时效率依然很高。
 
 主要代码在ep_insert中，其中涉及的数据结构比较多，先上一张总图
 
-![](http://www.anger6.com/wp-content/uploads/2019/07/image-21-1024x637.png)
+![](/images/wp-content/uploads/2019/07/image-21-1024x637.png)
+![](/images/wp-content/uploads/2019/07/image-21-1024x637.png)
 
 对于每个fd都会关联一个epitem,这里面的ffd包含了实际的file,fd.
 

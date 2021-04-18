@@ -3,8 +3,8 @@ title: leetcode竞赛题(一)----生成每种字符都是奇数个的字符串
 tags: []
 id: '2096'
 categories:
-  - - self_culture
-    - 2020刷题记录
+  - - 自我修养
+    - leetcode
 date: 2020-03-08 07:07:10
 ---
 

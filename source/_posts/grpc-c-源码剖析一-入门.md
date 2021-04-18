@@ -3,9 +3,8 @@ title: gRPC C++  源码剖析(一)----------入门
 tags: []
 id: '2072'
 categories:
-  - - my_tutorials
+  - - rpc
     - gRPC
-  - - 我的教程
 date: 2019-10-22 15:08:00
 ---
 

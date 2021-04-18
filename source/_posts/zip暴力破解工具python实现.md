@@ -3,7 +3,8 @@ title: zip暴力破解工具Python实现
 tags: []
 id: '2110'
 categories:
-  - - Python
+   - 小项目
+   - 破解工具
 date: 2020-05-04 12:27:15
 ---
 
@@ -68,7 +69,8 @@ def setup_args():
     return parser.parse_args()
 ```
 
-![](http://www.anger6.com/wp-content/uploads/2020/05/image-1.gif)
+![](/images/wp-content/uploads/2020/05/image-1.gif)
+![](/images/wp-content/uploads/2020/05/image-1.gif)
 
 angerZipDecodemain.py:
 
@@ -123,4 +125,5 @@ if __name__ == "__main__":
                 print('Try password:{1} failed! Error:{0}'.format(e, pwd))
 ```
 
-![](http://www.anger6.com/wp-content/uploads/2020/05/image.gif)
+![](/images/wp-content/uploads/2020/05/image.gif)
+![](/images/wp-content/uploads/2020/05/image.gif)

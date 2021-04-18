@@ -3,8 +3,8 @@ title: autotools工具
 tags: []
 id: '621'
 categories:
-  - - linux
-    - linux开发工具
+  - - 软件工程
+    - 编译构建
 date: 2019-06-23 03:16:16
 ---
 
@@ -20,7 +20,8 @@ sudo make install.
 
 使用autotools的基本流程如下：通常我们只需要编写Makefile.am和configure.ac文件。
 
-![](http://www.anger6.com/wp-content/uploads/2019/06/image-17.png)
+![](/images/wp-content/uploads/2019/06/image-17.png)
+![](/images/wp-content/uploads/2019/06/image-17.png)
 
 说了原理，我们再来看一个使用autotools的示例：
 

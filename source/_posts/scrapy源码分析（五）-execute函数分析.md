@@ -3,7 +3,7 @@ title: scrapy源码分析（五）--------------execute函数分析
 tags: []
 id: '80'
 categories:
-  - - sources_study
+  - - 开源软件
     - Scrapy
 date: 2019-05-12 10:48:39
 ---

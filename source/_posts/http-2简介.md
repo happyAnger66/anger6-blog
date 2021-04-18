@@ -3,9 +3,8 @@ title: HTTP/2简介
 tags: []
 id: '1890'
 categories:
-  - - my_tutorials
+  - - 协议
     - HTTP2详解
-  - - 我的教程
 date: 2019-08-15 14:47:48
 ---
 

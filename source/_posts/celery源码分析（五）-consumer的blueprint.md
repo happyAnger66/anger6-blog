@@ -3,7 +3,7 @@ title: Celery源码分析（五）----------Consumer的Blueprint
 tags: []
 id: '74'
 categories:
-  - - sources_study
+  - - 分布式系统
     - Celery
 date: 2019-05-12 10:45:17
 ---

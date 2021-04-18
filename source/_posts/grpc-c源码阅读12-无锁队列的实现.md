@@ -3,9 +3,8 @@ title: GRPC C++源码阅读(12)----无锁队列的实现
 tags: []
 id: '582'
 categories:
-  - - my_tutorials
+  - - rpc
     - gRPC
-  - - 我的教程
 date: 2019-06-22 07:07:22
 ---
 

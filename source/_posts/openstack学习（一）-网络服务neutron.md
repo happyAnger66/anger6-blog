@@ -3,7 +3,7 @@ title: Openstack学习（一）---------------网络服务Neutron
 tags: []
 id: '226'
 categories:
-  - - cloud
+  - - 云计算
     - openstack
 date: 2019-05-16 15:12:35
 ---
@@ -68,13 +68,15 @@ Linux虚拟网络
 
   Neutron最为核心的工作是对二层物理网络network的抽象与管理。在一个传统的物理网络里，可能有一组物理的Server，上面分别运行有各种各样的应用，比如Web服务器，数据库服务等。为了彼此之间能够互相通信，每个物理Server都拥有一个或多个物理网卡(NIC)，这些NIC被连接在物理交换设备上，比如交换机(Switch),如下图所示:
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/tradi_layer2_net.jpg)
+![](/images/wp-content/uploads/2019/05/tradi_layer2_net.jpg)
+![](/images/wp-content/uploads/2019/05/tradi_layer2_net.jpg)
 
                                                  传统二层物理网络
 
     虚拟化技术被引入后，上述的多个操作系统和应用可以以虚拟机的形式分享同一物理Server,虚拟机的生成与管理由Hypervisor(或VMM)来完成，于是上图的网络结构被演化为：
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/vn.jpg)
+![](/images/wp-content/uploads/2019/05/vn.jpg)
+![](/images/wp-content/uploads/2019/05/vn.jpg)
 
 虚拟网络结构
 
@@ -98,7 +100,8 @@ Linux虚拟网络
 
   Bridge可以绑定其他Linux网络设备作为从设备，并将这些从设备虚拟化为端口，当一个从设备被绑定到Bridge上时，就相当于真实网络中的交换机端口插入了一个连接有终端的网线。
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/linux_brdge.jpg)
+![](/images/wp-content/uploads/2019/05/linux_brdge.jpg)
+![](/images/wp-content/uploads/2019/05/linux_brdge.jpg)
 
                                                                                           Linux Bridge 结构  
   如上图所示,Bridge设备br0绑定了实际设备eth0与虚拟设备tap0/tap1，此时，对于Hypervisor的网络协议上层来说，只看得到br0，并不会关心桥接的细节。当这些从设备接收到数据包时，会将其将给br0决定数据包的去向，br0会根据MAC地址与端口的映射关系进行转发。
@@ -129,7 +132,8 @@ Linux虚拟网络
 
   总之，Open vSwitch在云环境中的各种虚拟化平台上（比如Xen与KVM）实现了分布式的虚拟交换机（Distributed Virtual Switch)，一个物理Server上的vSwitch可以透明地与另一Server上的vSwitch连接在一起，如下图所示:
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/ovs.jpg)
+![](/images/wp-content/uploads/2019/05/ovs.jpg)
+![](/images/wp-content/uploads/2019/05/ovs.jpg)
 
 Open vSwitch
 
@@ -159,7 +163,8 @@ Neutron网络抽象
 
 除了上述L2与L3的抽象，Neutron还提供了更高层次的一些服务，主要有FWaaS,LBaaS,VPNaaS。
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/ovs结构.jpg)
+![](/images/wp-content/uploads/2019/05/ovs结构.jpg)
+![](/images/wp-content/uploads/2019/05/ovs结构.jpg)
 
 Neutron网络架构
 
@@ -177,7 +182,8 @@ Neutron网络架构
 
    Neutron的完整架构如下图所示:
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/netron离开.jpg)
+![](/images/wp-content/uploads/2019/05/netron离开.jpg)
+![](/images/wp-content/uploads/2019/05/netron离开.jpg)
 
                   Neutron 架构
 

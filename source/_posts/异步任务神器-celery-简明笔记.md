@@ -3,7 +3,7 @@ title: 异步任务神器 Celery 简明笔记
 tags: []
 id: '76'
 categories:
-  - - sources_study
+  - - 分布式系统
     - Celery
 date: 2019-05-12 10:46:30
 ---

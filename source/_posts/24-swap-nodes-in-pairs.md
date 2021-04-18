@@ -3,9 +3,8 @@ title: 24.Swap Nodes in Pairs
 tags: []
 id: '1052'
 categories:
-  - - self_culture
-    - leetcode_meet_me
   - - 自我修养
+    - leetcode_meet_me
 date: 2019-07-14 04:16:49
 ---
 

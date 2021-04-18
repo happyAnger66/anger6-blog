@@ -3,9 +3,8 @@ title: docker镜像存储实现
 tags: []
 id: '1724'
 categories:
-  - - cloud
+  - - DevOps
     - Docker
-  - - 云计算
 date: 2019-08-05 14:11:35
 ---
 
@@ -69,7 +68,8 @@ k8s.gcr.io/kube-apiserver v1.12.0 ab60b017e34f 10 months ago 194MB
 
 *   ChainID:每个layer也有这个ID，从名字上也能猜出个大概，这是一个链式ID，由父layer递归计算而来。计算公式如下:
 
-![](http://www.anger6.com/wp-content/uploads/2019/08/image-4.png)
+![](/images/wp-content/uploads/2019/08/image-4.png)
+![](/images/wp-content/uploads/2019/08/image-4.png)
 
 公式简单说明一下，如果是第0层layer，则ChainID=DiffID,否则由父layer的ChainID加上一个空格再加上本层的DiffID后做SHA256摘要。
 
@@ -80,9 +80,11 @@ ChainID才能唯一标识一个layer,即使2个layer的DiffID相同，但是由�
 
 由于这4个ID是后面的基础，因此再上2幅图加深理解,图来源于上面例子中的镜像:
 
-![](http://www.anger6.com/wp-content/uploads/2019/08/image-8.png)
+![](/images/wp-content/uploads/2019/08/image-8.png)
+![](/images/wp-content/uploads/2019/08/image-8.png)
 
-![](http://www.anger6.com/wp-content/uploads/2019/08/image-10-1024x191.png)
+![](/images/wp-content/uploads/2019/08/image-10-1024x191.png)
+![](/images/wp-content/uploads/2019/08/image-10-1024x191.png)
 
 首先，看下镜像信息在哪里存储。
 

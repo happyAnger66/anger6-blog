@@ -3,7 +3,7 @@ title: Ruby实现Http自动化测试(一)----------类宏
 tags: []
 id: '145'
 categories:
-  - - program_language
+  - - 编程语言
     - Ruby
 date: 2019-05-12 14:03:47
 ---

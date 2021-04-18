@@ -3,9 +3,8 @@ title: gRPC当前epoll实现的问题和解决方案
 tags: []
 id: '1589'
 categories:
-  - - my_tutorials
+  - - rpc
     - gRPC
-  - - 我的教程
 date: 2019-07-24 15:56:41
 ---
 
@@ -20,7 +19,8 @@ gRPC当前的epoll实现并不十分高效，有很大的改进空间。这篇�
 ### 当前gRPC中`epoll`的实现.  
 整体架构图:
 
-![](http://www.anger6.com/wp-content/uploads/2019/07/old_epoll_impl.png)
+![](/images/wp-content/uploads/2019/07/old_epoll_impl.png)
+![](/images/wp-content/uploads/2019/07/old_epoll_impl.png)
 
 一个gRPC客户端或者服务端都可以有多个completion queue(后面简称为cq),每个cq都会创建一个pollset.
 

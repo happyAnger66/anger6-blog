@@ -3,7 +3,7 @@ title: 6.gRPC C++源码阅读--常见的类
 tags: []
 id: '302'
 categories:
-  - - my_tutorials
+  - - rpc
     - gRPC
 date: 2019-05-21 15:12:45
 ---
@@ -30,19 +30,22 @@ GRPC_CQ_NON_POLLING:不使用'pollset'结构。必须不停地使用grpc_complet
 
 对于同步server，默认情况下会使用1个cq来监听rpc请求。对于每个cq,都会启动一个线程池来进行处理。可以通过下面的类图来理解。
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/image-5-1024x628.png)
+![](/images/wp-content/uploads/2019/05/image-5-1024x628.png)
+![](/images/wp-content/uploads/2019/05/image-5-1024x628.png)
 
 grpc::Server根据同步队列的个数sync_server_cqs_来创建同样数量的SyncRequestThreadManager(即线程池）来为每个cq服务。线程池中的线程数量和min_pollers_,max_pollers有关，默认是1~2个线程。线程池会为cq服务，cq的默认超时时间为10s.
 
 每个线程的工作流程如下：
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/image-6.png)
+![](/images/wp-content/uploads/2019/05/image-6.png)
+![](/images/wp-content/uploads/2019/05/image-6.png)
 
 循环调用队列的AsyncNext方法获取任务，内部是epoll机制。对获取的任务执行DoWork操作。循环往复。
 
 线程池，completion_queue,文件描述符集合'pollsets'，三者之间的工作关系如下所示：
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/image-8.png)
+![](/images/wp-content/uploads/2019/05/image-8.png)
+![](/images/wp-content/uploads/2019/05/image-8.png)
 
 AsyncNext的流程主要在cq_next函数里。
 
@@ -52,7 +55,8 @@ iomgr是其中对I/O操作的管理的一个子包，它里面实现了grpc的I/
 
 首先是ExecCtx, iomgr/exec_ctx.h:
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/image.png)
+![](/images/wp-content/uploads/2019/05/image.png)
+![](/images/wp-content/uploads/2019/05/image.png)
 
 这个类的含义是"执行context".
 
@@ -84,7 +88,8 @@ grpc_core::ExecCtx::Get()
 
 它的类图如下：
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/image-1.png)
+![](/images/wp-content/uploads/2019/05/image-1.png)
+![](/images/wp-content/uploads/2019/05/image-1.png)
 
 从它的名字也可以知道，它的作用是用于执行一些任务。内部使用的是线程，最大线程数量是2倍cpu个数。
 

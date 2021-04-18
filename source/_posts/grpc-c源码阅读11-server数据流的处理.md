@@ -3,7 +3,7 @@ title: grpc c++源码阅读(11)----server数据流的处理
 tags: []
 id: '572'
 categories:
-  - - my_tutorials
+  - - rpc
     - gRPC
 date: 2019-06-19 15:38:35
 ---
@@ -19,10 +19,12 @@ t1.join();
 
 作用分别如下:
 
-*   2个"grpcpp_sync_ser线程",一个用于epoll循环，一个处理rpc方法调用。回想一下这篇文章中讲的线程模型吧[<<GRPC C++源码阅读 同步SERVER线程模型>>](http://www.anger6.com/?p=360)
+*   2个"grpcpp_sync_ser线程",一个用于epoll循环，一个处理rpc方法调用。回想一下这篇文章中讲的线程模型吧[<<GRPC C++源码阅读 同步SERVER线程模型>>](/images/?p=360)
+*   2个"grpcpp_sync_ser线程",一个用于epoll循环，一个处理rpc方法调用。回想一下这篇文章中讲的线程模型吧[<<GRPC C++源码阅读 同步SERVER线程模型>>](/images/?p=360)
 *   2个"grpc_global_tim"线程，用于处理定时任务。如握手超时的处理。
 *   一个主线程，等待server结束
-*   一个"global-executor"调度器线程，用于调度一些阻塞或异步任务。回想一下这篇文章中讲的executor.[<<6.GRPC C++源码阅读–常见的类>>](http://www.anger6.com/?p=302)
+*   一个"global-executor"调度器线程，用于调度一些阻塞或异步任务。回想一下这篇文章中讲的executor.[<<6.GRPC C++源码阅读–常见的类>>](/images/?p=302)
+*   一个"global-executor"调度器线程，用于调度一些阻塞或异步任务。回想一下这篇文章中讲的executor.[<<6.GRPC C++源码阅读–常见的类>>](/images/?p=302)
 
 数据解包的核心流程是grpc_chttp2_perform_read函数，里面会逐字节的拆分chttp2数据包，按照http2的帧格式一帧一帧的解析。解析具体一帧的函数为parse_frame_slice.parse_frame_slice里面会根据状态机调用当前合适的parser.比如收到“window_udpate”帧会调用“grpc_chttp2_window_update_parser_parse”;收到"ping"帧会调用"grpc_chttp2_ping_parser_parse";数据帧对应的解析函数为"grpc_chttp2_data_parser_parse".
 

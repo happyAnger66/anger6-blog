@@ -3,7 +3,7 @@ title: gRPC 使用C++语言
 tags: []
 id: '248'
 categories:
-  - - my_tutorials
+  - - rpc
     - gRPC
 date: 2019-05-17 15:16:05
 ---

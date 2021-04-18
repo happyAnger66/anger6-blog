@@ -3,9 +3,8 @@ title: SMP缓存一致性
 tags: []
 id: '641'
 categories:
-  - - Linux
+  - - 操作系统
   - - linux
-    - 内存管理
 date: 2019-06-23 10:56:35
 ---
 

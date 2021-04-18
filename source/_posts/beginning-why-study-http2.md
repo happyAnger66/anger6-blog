@@ -3,8 +3,8 @@ title: beginning---why study HTTP2?
 tags: []
 id: '267'
 categories:
-  - - my_tutorials
-    - HTTP2详解
+  - - 协议
+    - HTTP2
 date: 2019-05-18 15:13:16
 ---
 

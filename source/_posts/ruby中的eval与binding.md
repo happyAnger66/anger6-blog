@@ -3,7 +3,7 @@ title: Ruby中的eval与binding
 tags: []
 id: '139'
 categories:
-  - - program_language
+  - - 编程语言
     - Ruby
 date: 2019-05-12 14:01:48
 ---

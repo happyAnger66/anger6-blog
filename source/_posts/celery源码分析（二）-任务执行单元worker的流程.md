@@ -14,7 +14,7 @@ date: 2019-05-12 10:38:40
 
 下面是Worker对象构造函数和start函数的时序图，对照流程图分析：
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/c2-700x1024.jpg)
+![](/images/wp-content/uploads/2019/05/c2-700x1024.jpg)
 
 1.首先，调用AppLoader的init_worker方法，这个方法主要是根据配置加载一些需要的模块。
 

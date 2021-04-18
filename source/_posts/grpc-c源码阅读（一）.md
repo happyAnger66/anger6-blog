@@ -3,7 +3,7 @@ title: 5.gRPC c++源码阅读HelloWorld
 tags: []
 id: '274'
 categories:
-  - - my_tutorials
+  - - rpc
     - gRPC
 date: 2019-05-19 07:18:08
 ---
@@ -55,7 +55,8 @@ static const char* Greeter_method_names[] = {
 
 总结一下,protocol buffer编译器自动生成的代码里包含了我们要继承的抽象类Greeter::Service,这个类并身继承了grpc::Service这个grpc框架类，里面包含了很多框架的功能，如AddMethod用于添加rpc方法。所有这些的类图如下所示：
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/类图1.png)
+![](/images/wp-content/uploads/2019/05/类图1.png)
+![](/images/wp-content/uploads/2019/05/类图1.png)
 
 为了启动我们实现的服务，我们需要使用grpc提供的API，例子中的代码如下:
 
@@ -90,7 +91,8 @@ AddListeningPort和RegisterService所做的工作仅仅是将服务地址和服�
 
 BuildAndStart是创建grpc::Server的核心方法，流程如下：
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/buildAndStart流程-1-558x1024.png)
+![](/images/wp-content/uploads/2019/05/buildAndStart流程-1-558x1024.png)
+![](/images/wp-content/uploads/2019/05/buildAndStart流程-1-558x1024.png)
 
 流程以下值得关注的地方：
 
@@ -102,7 +104,8 @@ BuildAndStart是创建grpc::Server的核心方法，流程如下：
 
 随着分析代码的深入，我们的类图也扩展为以下规模：
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/源码类图1-2-1024x987.png)
+![](/images/wp-content/uploads/2019/05/源码类图1-2-1024x987.png)
+![](/images/wp-content/uploads/2019/05/源码类图1-2-1024x987.png)
 
 几点说明：
 

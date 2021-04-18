@@ -3,9 +3,8 @@ title: horizon创建网络前端代码分析
 tags: []
 id: '656'
 categories:
-  - - cloud
-    - openstack
   - - 云计算
+    - openstack
 date: 2019-06-24 01:45:32
 ---
 
@@ -24,7 +23,8 @@ Openstack需要提供一个简洁方便，用户友好的控制界面给最终�
 
 /usr/share/openstack_dashboard:
 
-![](http://www.anger6.com/wp-content/uploads/2019/06/h000-1.png)
+![](/images/wp-content/uploads/2019/06/h000-1.png)
+![](/images/wp-content/uploads/2019/06/h000-1.png)
 
 可以看到4个目录，对应4个dashboard.
 
@@ -33,28 +33,32 @@ url前缀:http://192.168.124.100/horizon/admin/
 
 面板:
 
-![](http://www.anger6.com/wp-content/uploads/2019/06/h00.png)
+![](/images/wp-content/uploads/2019/06/h00.png)
+![](/images/wp-content/uploads/2019/06/h00.png)
 
 project:普通用户登陆后看到的项目面板  
 url前缀:http://192.168.124.100/horizon/project/
 
 面板:
 
-![](http://www.anger6.com/wp-content/uploads/2019/06/h0.png)
+![](/images/wp-content/uploads/2019/06/h0.png)
+![](/images/wp-content/uploads/2019/06/h0.png)
 
 identity:身份管理面板  
 url前缀:http://192.168.124.100/horizon/identity/
 
 面板 :
 
-![](http://www.anger6.com/wp-content/uploads/2019/06/h1.png)
+![](/images/wp-content/uploads/2019/06/h1.png)
+![](/images/wp-content/uploads/2019/06/h1.png)
 
 settings:设置面板  
 url前缀:http://192.168.124.100/horizon/settings/
 
 面板:
 
-![](http://www.anger6.com/wp-content/uploads/2019/06/h2.png)
+![](/images/wp-content/uploads/2019/06/h2.png)
+![](/images/wp-content/uploads/2019/06/h2.png)
 
 这样知道了不同目录对应的面板，我们想分析不同操作的处理流程就可以去对应目录寻找了。
 
@@ -101,7 +105,8 @@ initial=False, required=False)
 
 可以看到其中包含了创建网络页面中所需要的字段：
 
-![](http://www.anger6.com/wp-content/uploads/2019/06/horizon3.png)
+![](/images/wp-content/uploads/2019/06/horizon3.png)
+![](/images/wp-content/uploads/2019/06/horizon3.png)
 
 点击“提交”后，会调用表单的'handle'方法:
 

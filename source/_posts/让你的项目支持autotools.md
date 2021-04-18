@@ -3,9 +3,8 @@ title: 让你的项目支持autotools
 tags: []
 id: '2106'
 categories:
-  - - Linux
-  - - linux
-    - linux开发工具
+  - - 软件工程
+  - - 编译构建
 date: 2020-04-16 13:51:44
 ---
 

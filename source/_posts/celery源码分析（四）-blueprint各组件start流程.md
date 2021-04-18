@@ -3,7 +3,7 @@ title: Celery源码分析（四）--------Blueprint各组件start流程
 tags: []
 id: '72'
 categories:
-  - - sources_study
+  - - 分布式系统
     - Celery
 date: 2019-05-12 10:41:32
 ---

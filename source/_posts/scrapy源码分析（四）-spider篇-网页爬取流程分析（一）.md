@@ -3,7 +3,7 @@ title: scrapy源码分析（四）-------spider篇------网页爬取流程分析
 tags: []
 id: '78'
 categories:
-  - - sources_study
+  - - 开源软件
     - Scrapy
 date: 2019-05-12 10:48:04
 ---

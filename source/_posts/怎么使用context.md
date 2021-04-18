@@ -3,10 +3,8 @@ title: 怎么使用context
 tags: []
 id: '1903'
 categories:
-  - - program_language
+  - - 编程语言
     - Golang
-  - - golang
-    - go标准库
 date: 2019-08-18 13:55:57
 ---
 
@@ -28,6 +26,7 @@ context库是go 1.7中加入的，本篇文章主要是讲解如何正确的使�
 
 context包的核心就是context接口.下面是从源码包里摘录的其核心部分。
 
+```golang
 // A Context carries a deadline, cancelation signal, and request-scoped values
 // across API boundaries. Its methods are safe for simultaneous use by multiple
 // goroutines.
@@ -46,6 +45,7 @@ type Context interface {
     // Value returns the value associated with key or nil if none.
     Value(key interface{}) interface{}
 }
+```
 
 *   Done:这个方法返回一个只读的通道,这个通道可以被运行在当前context上的函数当作一个取消信号使用:当这个通道被关闭后，正在处理的函数应该终止操作并返回。
 
@@ -69,15 +69,18 @@ context包提供用来从已有的context继承产生出新的Context的函数�
 
 下面是源码包里的描述:
 
+```golang
 // Background returns an empty Context. It is never canceled, has no deadline,
 // and has no values. Background is typically used in main, init, and tests,
 // and as the top-level Context for incoming requests.
 func Background() Context
+```
 
 *   `WithCancel`和`WithTimeout`返回衍生出的Context值,可以在父Context之前被取消.当请求处理函数返回时，与这个请求相关的Context就被取消了.WithCancel对于需要取消使用多个副本处理冗余请求的场景也十分有用.WithTimeout用于为访问后端服务的请求设置deadline.
 
 下面是源码包里的相关描述:
 
+```golang
 // WithCancel returns a copy of parent whose Done channel is closed as soon as
 // parent.Done is closed or cancel is called.
 func WithCancel(parent Context) (ctx Context, cancel CancelFunc)
@@ -271,6 +274,7 @@ func httpDo(ctx context.Context, req *http.Request, f func(*http.Response, error
         return err
     }
 }
+```
 
 希望通过上面的例子，你能够理解并正确地使用Context包.
 

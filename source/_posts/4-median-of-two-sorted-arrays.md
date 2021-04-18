@@ -3,9 +3,8 @@ title: 4.Median of Two Sorted Arrays
 tags: []
 id: '771'
 categories:
-  - - self_culture
-    - leetcode_meet_me
   - - 自我修养
+    - leetcode_meet_me
 date: 2019-06-30 02:54:26
 ---
 

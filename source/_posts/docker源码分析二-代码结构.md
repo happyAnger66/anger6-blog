@@ -3,7 +3,7 @@ title: Docker源码分析(二)-------代码结构
 tags: []
 id: '505'
 categories:
-  - - cloud
+  - - DevOps
     - Docker
 date: 2019-06-09 11:35:25
 ---
@@ -16,7 +16,8 @@ date: 2019-06-09 11:35:25
 
 下载好代码，可以看到moby目录结构如下:
 
-![](http://www.anger6.com/wp-content/uploads/2019/06/image-12.png)
+![](/images/wp-content/uploads/2019/06/image-12.png)
+![](/images/wp-content/uploads/2019/06/image-12.png)
 
 api:顾名思义，api目录是docker cli或者第三方软件与docker daemon进行交互的api库，它是HTTP REST API。
 

@@ -3,9 +3,8 @@ title: 归并排序
 tags: []
 id: '950'
 categories:
-  - - self_culture
-    - 数据结构与算法
   - - 自我修养
+    - 数据结构与算法
 date: 2019-07-06 14:52:46
 ---
 

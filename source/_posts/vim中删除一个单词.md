@@ -3,10 +3,9 @@ title: vim中删除一个单词
 tags: []
 id: '1963'
 categories:
-  - - linux
-    - linux开发工具
-  - - linux_tools
-    - VIM
+    - 软件工程
+    - 开发工具
+    - vim
 date: 2019-08-28 14:58:59
 ---
 

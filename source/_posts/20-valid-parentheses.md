@@ -3,9 +3,8 @@ title: 20.Valid Parentheses
 tags: []
 id: '815'
 categories:
-  - - self_culture
-    - leetcode_meet_me
   - - 自我修养
+    - leetcode_meet_me
 date: 2019-07-03 15:27:32
 ---
 

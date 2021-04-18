@@ -3,9 +3,8 @@ title: 一行shell实现统计单词词频
 tags: []
 id: '2091'
 categories:
-  - - self_culture
-    - leetcode_meet_me
-  - - Linux
+  - - 编程语言
+    - shell
 date: 2020-02-17 14:47:53
 ---
 

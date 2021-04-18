@@ -3,8 +3,8 @@ title: Linux 虚拟网络设备详解之 “vRouter”
 tags: []
 id: '2134'
 categories:
-  - - cloud_idc
-    - linux网络
+  - - 网络
+    - linux虚拟网络
 date: 2020-05-20 10:11:35
 ---
 

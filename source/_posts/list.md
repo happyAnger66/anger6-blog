@@ -3,6 +3,7 @@ title: list
 tags: []
 id: '40'
 categories:
+  - - 编程语言
   - - python
     - python入门教程
 date: 2019-05-11 13:23:55

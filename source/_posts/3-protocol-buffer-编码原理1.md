@@ -40,7 +40,8 @@ varint中每个字节的最高位有特殊含义(msb)，１代表后面还有更
 
 按照小字节序得到　100101100 = 300
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/varint.jpg)
+![](/images/wp-content/uploads/2019/05/varint.jpg)
+![](/images/wp-content/uploads/2019/05/varint.jpg)
 
 ## Message Struct
 
@@ -48,7 +49,8 @@ varint中每个字节的最高位有特殊含义(msb)，１代表后面还有更
 
 当编码时，一个接一个的k-v对组成二进制序列。
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/k0v.jpg)
+![](/images/wp-content/uploads/2019/05/k0v.jpg)
+![](/images/wp-content/uploads/2019/05/k0v.jpg)
 
 当解码时，protcol buffer的解析器实现需要能够跳过不识别的k,这样可以在消息中添加新字段，而不影响老的程序使用。为了达到这个目的，二进制序列中"key"含有２个值－－－.proto文件中定义的key和值的类型(wire_type)（类型提供了足够的信息来获取后面值的长度）。
 
@@ -115,7 +117,8 @@ signed integers
 
 ZigZag编码将signed integers映射到unsigned integers.所以对于绝对值较小的数可以更高效地编码。
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/zigzag.jpg)
+![](/images/wp-content/uploads/2019/05/zigzag.jpg)
+![](/images/wp-content/uploads/2019/05/zigzag.jpg)
 
 对于sint32,value n编码为(n << 1)^(n >> 31)
 

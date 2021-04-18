@@ -3,15 +3,15 @@ title: gRPC C++源码阅读(13)------rpc请求的分发流程
 tags: []
 id: '523'
 categories:
-  - - my_tutorials
+  - - rpc
     - gRPC
-  - - 我的教程
 date: 2019-06-25 10:06:42
 ---
 
 思考下面一个问题，如果我们的grpc server上有多个客户端同时发起rpc请求，那么这个rpc请求会交给哪个cq来处理？这个rpc的处理流程又是怎样的？
 
-上一篇文章讲述了gRPC中无锁队列的实现([gRpc无锁队列实现](http://www.anger6.com/?p=582))，这个无锁队列与rpc请求的分发有何关系？
+上一篇文章讲述了gRPC中无锁队列的实现([gRpc无锁队列实现](/images/?p=582))，这个无锁队列与rpc请求的分发有何关系？
+上一篇文章讲述了gRPC中无锁队列的实现([gRpc无锁队列实现](/images/?p=582))，这个无锁队列与rpc请求的分发有何关系？
 
 本篇文章对以上问题进行解答。
 
@@ -21,7 +21,8 @@ date: 2019-06-25 10:06:42
 
 通过前面的学习,我们知道我们的"grpcpp_sync_server"线程会进行epoll循环，当我们监听的listener fd接受到连接请求后，会进行下面流程的处理:
 
-![](http://www.anger6.com/wp-content/uploads/2019/06/image-14.png)
+![](/images/wp-content/uploads/2019/06/image-14.png)
+![](/images/wp-content/uploads/2019/06/image-14.png)
 
 fd变为就绪状态，由于是一个listener fd因此会进行on_accept.然后进行握手处理，握手成功后，为当前连接分配transport.(grpc_server_setup_transport)
 
@@ -33,7 +34,8 @@ grpc_server_setup_transport:
 
 ## 选择cq
 
-其中有一个关键的操作是会为我们的transport选择cq.前面的文章已经多次讲解过cq的作用，如果忘记请移步([8.GRPC C++源码阅读 异步服务器](http://www.anger6.com/?p=367),[7.GRPC C++源码阅读 同步SERVER线程模型](http://www.anger6.com/?p=360)).
+其中有一个关键的操作是会为我们的transport选择cq.前面的文章已经多次讲解过cq的作用，如果忘记请移步([8.GRPC C++源码阅读 异步服务器](/images/?p=367),[7.GRPC C++源码阅读 同步SERVER线程模型](/images/?p=360)).
+其中有一个关键的操作是会为我们的transport选择cq.前面的文章已经多次讲解过cq的作用，如果忘记请移步([8.GRPC C++源码阅读 异步服务器](/images/?p=367),[7.GRPC C++源码阅读 同步SERVER线程模型](/images/?p=360)).
 
 查找算法如下:
 
@@ -163,7 +165,8 @@ con_start_transport_stream_op_batch
 
 调用队列的cq_end_op_for_next方法发布，调用cq_event_queue_push将封装好的grpc_cq_completion放入cqd->queue.
 
-放入队列以后，cq循环就会检查到有任务，然后启动新线程执行rpc请求。关于cq执行rpc的线程模型参考前面的文章[<<7.GRPC C++源码阅读 同步SERVER线程模型>>](http://www.anger6.com/?p=360)
+放入队列以后，cq循环就会检查到有任务，然后启动新线程执行rpc请求。关于cq执行rpc的线程模型参考前面的文章[<<7.GRPC C++源码阅读 同步SERVER线程模型>>](/images/?p=360)
+放入队列以后，cq循环就会检查到有任务，然后启动新线程执行rpc请求。关于cq执行rpc的线程模型参考前面的文章[<<7.GRPC C++源码阅读 同步SERVER线程模型>>](/images/?p=360)
 
 DoWork里面会调用SyncRequest的Request方法为一下次调用做准备(grpc_server_request_registered_call)。然后再执行本次的rpc方法。
 

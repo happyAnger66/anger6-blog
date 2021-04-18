@@ -3,8 +3,8 @@ title: Puppet源码剖析----Type篇(一)
 tags: []
 id: '2130'
 categories:
-  - - cloud_idc
-    - 自动化运维
+   - DevOps
+   - 运维
 date: 2020-05-17 11:16:13
 ---
 

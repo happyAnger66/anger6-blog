@@ -3,14 +3,15 @@ title: 10.gRPC c++源码阅读 fd管理
 tags: []
 id: '457'
 categories:
-  - - my_tutorials
+  - - rpc
     - gRPC
 date: 2019-06-02 13:48:19
 ---
 
 本篇文章讲述gRPC如何管理文件描述符，如何处理fd上的事件。
 
-![](http://www.anger6.com/wp-content/uploads/2019/06/image-8-1024x845.png)
+![](/images/wp-content/uploads/2019/06/image-8-1024x845.png)
+![](/images/wp-content/uploads/2019/06/image-8-1024x845.png)
 
 经过前面几篇文章的学习，我们知道了completion_queue在grpc中的作用。那么它究竟是如何工作的，这篇文章将详细讲述。
 

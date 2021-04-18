@@ -3,7 +3,7 @@ title: openstack源码分析（一）------------如何入手
 tags: []
 id: '227'
 categories:
-  - - cloud
+  - - 云计算
     - openstack
 date: 2019-05-16 14:55:10
 ---

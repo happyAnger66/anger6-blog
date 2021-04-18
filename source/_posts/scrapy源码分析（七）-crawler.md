@@ -3,7 +3,7 @@ title: scrapy源码分析（七）------------ Crawler
 tags: []
 id: '84'
 categories:
-  - - sources_study
+  - - 开源软件
     - Scrapy
 date: 2019-05-12 10:51:31
 ---

@@ -3,9 +3,8 @@ title: linux互斥技术（一）
 tags: []
 id: '709'
 categories:
-  - - Linux
+  - - 操作系统
   - - linux
-    - 内核互斥技术
 date: 2019-06-26 14:54:31
 ---
 

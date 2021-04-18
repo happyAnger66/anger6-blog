@@ -3,8 +3,8 @@ title: git对象
 tags: []
 id: '1751'
 categories:
-  - - git
-    - git原理
+  - - 软件工程
+    - git
 date: 2019-08-07 14:37:08
 ---
 
@@ -116,7 +116,8 @@ tree对象里是test.txt文件名和其引用的blob对象。
 
 我们可以得到下面的关系图：
 
-![](http://www.anger6.com/wp-content/uploads/2019/08/image-11.png)
+![](/images/wp-content/uploads/2019/08/image-11.png)
+![](/images/wp-content/uploads/2019/08/image-11.png)
 
 到这里，我们可以学习到git里的3种对象，commit,tree,blob
 
@@ -172,7 +173,8 @@ $ git cat-file -p 767b
 
 我们再整理下这5个对象的关系图如下:
 
-![](http://www.anger6.com/wp-content/uploads/2019/08/image-13.png)
+![](/images/wp-content/uploads/2019/08/image-13.png)
+![](/images/wp-content/uploads/2019/08/image-13.png)
 
 可以看到，新的commit对象是上一个commit对象的孩子，新的commit对象引用了一个新的tree对象，新的tree对象包含了2个blob对象的引用，存储了2个不同的文件名，由于文件内容相同，因此2个blob对象引用的是同一个blob对象。
 

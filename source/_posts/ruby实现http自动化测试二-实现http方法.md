@@ -3,7 +3,7 @@ title: Ruby实现Http自动化测试(二)-----实现http方法
 tags: []
 id: '147'
 categories:
-  - - program_language
+  - - 编程语言
     - Ruby
 date: 2019-05-12 14:04:14
 ---

@@ -3,9 +3,8 @@ title: logging----Python日志功能
 tags: []
 id: '1056'
 categories:
-  - - Python
+  - - 编程语言
   - - python
-    - 标准库
 date: 2019-07-14 12:25:47
 ---
 

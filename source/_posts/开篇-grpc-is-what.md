@@ -3,7 +3,7 @@ title: 1.开篇---gRPC is What?
 tags: []
 id: '112'
 categories:
-  - - my_tutorials
+  - - rpc
     - gRPC
 date: 2019-05-12 12:59:52
 ---
@@ -26,7 +26,8 @@ gRPC既然是一套RPC框架，那么它一定解决了一些通用的问题，�
 
 gRPC基于以下理念： 定义一个_服务_，指定其能够被远程调用的方法（包含参数和返回类型）。在服务端实现这个接口，并运行一个 gRPC 服务器来处理客户端调用。在客户端拥有一个_存根_能够调用服务端的方法。
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/grpc.png)
+![](/images/wp-content/uploads/2019/05/grpc.png)
+![](/images/wp-content/uploads/2019/05/grpc.png)
 
 rpc框架通常要解决以下几个问题,gRPC也不例外：
 

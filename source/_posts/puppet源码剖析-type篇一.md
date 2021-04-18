@@ -3,8 +3,8 @@ title: Puppet源码剖析----Type篇(一)
 tags: []
 id: '141'
 categories:
-  - - program_language
-    - Ruby
+  - - DevOps
+    - 运维
 date: 2019-05-12 14:02:32
 ---
 

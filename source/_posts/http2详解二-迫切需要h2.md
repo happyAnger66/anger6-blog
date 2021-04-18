@@ -3,8 +3,8 @@ title: Http2详解(二)-------迫切需要h2
 tags: []
 id: '536'
 categories:
-  - - my_tutorials
-    - HTTP2详解
+  - - 协议
+    - HTTP2
 date: 2019-06-17 15:48:52
 ---
 

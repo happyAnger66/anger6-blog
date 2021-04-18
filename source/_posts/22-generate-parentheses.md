@@ -3,9 +3,8 @@ title: 22.Generate Parentheses
 tags: []
 id: '1054'
 categories:
-  - - self_culture
-    - leetcode_meet_me
   - - 自我修养
+    - leetcode_meet_me
 date: 2019-07-14 04:18:54
 ---
 

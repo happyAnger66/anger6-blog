@@ -3,7 +3,7 @@ title: openstack neutron使用中遇到的问题总结
 tags: []
 id: '99'
 categories:
-  - - cloud
+  - - 云计算
     - openstack
 date: 2019-05-12 11:04:56
 ---

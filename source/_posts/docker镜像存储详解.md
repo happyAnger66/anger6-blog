@@ -3,7 +3,7 @@ title: docker镜像存储详解
 tags: []
 id: '101'
 categories:
-  - - cloud
+  - - DevOps
     - Docker
 date: 2019-05-12 11:06:53
 ---
@@ -98,7 +98,8 @@ docker的根工作目录一般是/var/lib/docker
 
 镜像构建
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/docker-1024x960.jpg)
+![](/images/wp-content/uploads/2019/05/docker-1024x960.jpg)
+![](/images/wp-content/uploads/2019/05/docker-1024x960.jpg)
 
 镜像导出  
 使用docker save命令导出镜像

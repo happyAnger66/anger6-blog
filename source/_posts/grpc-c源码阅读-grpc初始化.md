@@ -3,7 +3,7 @@ title: gRPC C++源码阅读 grpc初始化
 tags: []
 id: '420'
 categories:
-  - - my_tutorials
+  - - rpc
     - gRPC
 date: 2019-05-31 14:57:42
 ---
@@ -12,7 +12,8 @@ date: 2019-05-31 14:57:42
 
 先看一个类图
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/image-25.png)
+![](/images/wp-content/uploads/2019/05/image-25.png)
+![](/images/wp-content/uploads/2019/05/image-25.png)
 
 任何依赖grpc核心lib初始化的代码，都需要在.cc文件中定义类型为GrpcLibraryInitializer的静态变量g_gli_initializer。这个对象的作用通过类图可以看出，会以单例模式初始化g_glip,g_core_codegen_interface这2个对象，这2个对象分别负责grpc核心lib(GrpcLibrary)和grpc生成代码(CoreCodegen)功能的初始化。
 

@@ -3,7 +3,7 @@ title: Go实现控制任程序的生命周期
 tags: []
 id: '57'
 categories:
-  - - program_language
+  - - 编程语言
     - Golang
 date: 2019-05-11 15:04:56
 ---

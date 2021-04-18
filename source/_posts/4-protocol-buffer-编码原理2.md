@@ -3,7 +3,7 @@ title: 4.PROTOCOL BUFFER——编码原理(2)
 tags: []
 id: '204'
 categories:
-  - - my_tutorials
+  - - rpc
     - gRPC
 date: 2019-05-15 12:30:13
 ---

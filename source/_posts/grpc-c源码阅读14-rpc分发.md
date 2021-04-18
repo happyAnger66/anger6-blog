@@ -3,9 +3,8 @@ title: gRPC C++源码阅读(14) rpc分发
 tags: []
 id: '794'
 categories:
-  - - my_tutorials
+  - - rpc
     - gRPC
-  - - 我的教程
 date: 2019-07-03 14:36:47
 ---
 
@@ -13,7 +12,8 @@ date: 2019-07-03 14:36:47
 
 通过官方的例子和前面的讲解，我们知道，同步服务器由grpc::ServerBuilder构建而来。
 
-前面讲过同步服务内部使用线程池对象"SyncRequestThreadManager"来监听rpc请求，[<<GRPC C++源码阅读 同步SERVER线程模型>>](http://www.anger6.com/?p=360)
+前面讲过同步服务内部使用线程池对象"SyncRequestThreadManager"来监听rpc请求，[<<GRPC C++源码阅读 同步SERVER线程模型>>](/images/?p=360)
+前面讲过同步服务内部使用线程池对象"SyncRequestThreadManager"来监听rpc请求，[<<GRPC C++源码阅读 同步SERVER线程模型>>](/images/?p=360)
 
 线程池的个数和处理epoll的线程个数默认为1.如果想更改，可以通过下面的接口进行设置：
 
@@ -36,7 +36,8 @@ grpc::Server会将每个rpc方法加入到server的一个方法链表上，然�
 
 流程如下:
 
-![](http://www.anger6.com/wp-content/uploads/2019/07/image.png)
+![](/images/wp-content/uploads/2019/07/image.png)
+![](/images/wp-content/uploads/2019/07/image.png)
 
 rpc方法用RpcServiceMethod对象描述。
 
@@ -79,13 +80,15 @@ Request方法的作用是将rpc方法与grpc::server和线程池的cq关联。
 
 基本流程如下:
 
-![](http://www.anger6.com/wp-content/uploads/2019/07/image-2.png)
+![](/images/wp-content/uploads/2019/07/image-2.png)
+![](/images/wp-content/uploads/2019/07/image-2.png)
 
 对于grpc::server的每个method,都会初始化一个request_matcher.从这个对象的名字，可以猜出它的作用是用于rpc匹配。这里会根据server的cq个数，创建相同个数的队列，这个队列就是前面讲的多生产者单一消费者的无锁队列。
 
 它们之间的关系如下图所示:
 
-![](http://www.anger6.com/wp-content/uploads/2019/07/image-3.png)
+![](/images/wp-content/uploads/2019/07/image-3.png)
+![](/images/wp-content/uploads/2019/07/image-3.png)
 
 当接受到rpc请求时，会从选择一个当前空闲的rm->requests_per_cq，要么他cq_end_op_for_next将其发布到这个队列上。
 

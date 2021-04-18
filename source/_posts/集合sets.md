@@ -3,8 +3,8 @@ title: 集合Sets
 tags: []
 id: '42'
 categories:
-  - - python
-    - python入门教程
+    - 编程语言
+    - python
 date: 2019-05-11 13:24:27
 ---
 

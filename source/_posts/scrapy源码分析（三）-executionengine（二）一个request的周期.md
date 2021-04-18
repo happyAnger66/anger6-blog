@@ -3,7 +3,7 @@ title: scrapy源码分析（三）---------ExecutionEngine（二）一个request
 tags: []
 id: '49'
 categories:
-  - - sources_study
+  - - 开源软件
     - Scrapy
 date: 2019-05-11 15:00:49
 ---
@@ -18,7 +18,8 @@ date: 2019-05-11 15:00:49
 
 工作流程图如下:
 
-![](http://www.anger6.com/wp-content/uploads/2019/05/20161129231431669-769x1024.png)
+![](/images/wp-content/uploads/2019/05/20161129231431669-769x1024.png)
+![](/images/wp-content/uploads/2019/05/20161129231431669-769x1024.png)
 
 * * *
 

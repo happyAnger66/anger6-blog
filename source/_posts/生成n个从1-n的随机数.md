@@ -3,9 +3,8 @@ title: 生成n个从1-n的随机数
 tags: []
 id: '835'
 categories:
-  - - self_culture
-    - 数据结构与算法
   - - 自我修养
+    - 数据结构与算法
 date: 2019-07-06 01:38:08
 ---
 

@@ -3,11 +3,9 @@ title: list
 tags: []
 id: '1966'
 categories:
-  - - Python
+  - - 编程语言
   - - python
-    - python入门教程
-  - - python_basic
-    - 数据模型
+    - 入门教程
 date: 2019-09-06 13:01:57
 ---
 

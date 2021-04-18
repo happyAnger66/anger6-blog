@@ -3,8 +3,8 @@ title: '剑指offer p8:找出二叉树中序遍历的下一个节点'
 tags: []
 id: '2100'
 categories:
-  - - self_culture
-    - 2020刷题记录
+  - - 自我修养
+    - 剑指offer
 date: 2020-03-08 07:51:29
 ---
 

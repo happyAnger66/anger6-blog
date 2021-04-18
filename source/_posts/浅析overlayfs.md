@@ -3,7 +3,7 @@ title: 浅析overlayfs
 tags: []
 id: '2103'
 categories:
-  - - Linux
+  - - 操作系统
   - - linux
     - 文件系统
 date: 2020-03-15 12:16:40

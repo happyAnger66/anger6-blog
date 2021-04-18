@@ -3,7 +3,7 @@ title: scrapy源码分析（十）------------Scraper
 tags: []
 id: '90'
 categories:
-  - - sources_study
+  - - 开源软件
     - Scrapy
 date: 2019-05-12 10:53:34
 ---

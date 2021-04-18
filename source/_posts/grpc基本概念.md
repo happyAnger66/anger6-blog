@@ -3,7 +3,7 @@ title: 4.gRPC的一些基本概念
 tags: []
 id: '272'
 categories:
-  - - my_tutorials
+  - - rpc
     - gRPC
 date: 2019-05-19 02:24:27
 ---

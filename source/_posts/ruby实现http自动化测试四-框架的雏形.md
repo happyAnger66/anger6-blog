@@ -3,7 +3,7 @@ title: Ruby实现http自动化测试(四)------框架的雏形
 tags: []
 id: '151'
 categories:
-  - - program_language
+  - - 编程语言
     - Ruby
 date: 2019-05-12 14:05:11
 ---
