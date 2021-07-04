@@ -209,7 +209,6 @@ PSEUDO_END(__setcontext)
 
 ![setcontext返回](/images/coroutine/setcontext.png)
 
-
 #### 一个例子
 
 下面我们通过getcontext, setcontext来实现一个示例直观理解一下:
