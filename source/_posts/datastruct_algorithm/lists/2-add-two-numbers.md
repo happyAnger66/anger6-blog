@@ -3,8 +3,9 @@ title: 2.Add Two Numbers
 tags: []
 id: '755'
 categories:
-  - - 自我修养
-    - leetcode_meet_me
+  - - - 自我修养
+   - - 数据结构与算法
+     - 链表
 date: 2019-06-29 09:47:31
 ---
 
