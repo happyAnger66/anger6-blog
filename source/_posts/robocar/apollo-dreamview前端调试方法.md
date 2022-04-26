@@ -3,8 +3,8 @@ title: apollo平台dreamview前端代码调试方法
 tags: []
 id: '2022011301'
 categories:
-  - - 自动驾驶
-    - hmi
+  - 自动驾驶
+  - hmi
 date: 2022-01-13 21:30:52
 ---
 

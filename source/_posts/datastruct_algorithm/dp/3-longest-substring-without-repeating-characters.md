@@ -3,8 +3,9 @@ title: 3.Longest Substring Without Repeating Characters
 tags: []
 id: '757'
 categories:
-  - - 自我修养
-    - leetcode_meet_me
+  - 自我修养
+  - 数据结构与算法
+  - 动态规划
 date: 2019-06-29 13:40:58
 ---
 
