@@ -3,8 +3,9 @@ title: 10.gRPC c++源码阅读 fd管理
 tags: []
 id: '457'
 categories:
-  - - rpc
-    - gRPC
+  - 分布式
+  - rpc
+  - gRPC
 date: 2019-06-02 13:48:19
 ---
 

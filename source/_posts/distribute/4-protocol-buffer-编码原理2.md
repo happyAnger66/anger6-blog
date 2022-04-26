@@ -3,8 +3,9 @@ title: 4.PROTOCOL BUFFER——编码原理(2)
 tags: []
 id: '204'
 categories:
-  - - rpc
-    - gRPC
+  - 分布式
+  - rpc
+  - gRPC
 date: 2019-05-15 12:30:13
 ---
 

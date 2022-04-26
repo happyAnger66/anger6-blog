@@ -3,8 +3,9 @@ title: 8.gRPC C++源码阅读 异步服务器
 tags: []
 id: '367'
 categories:
-  - - rpc
-    - gRPC
+  - 分布式
+  - rpc
+  - gRPC
 date: 2019-05-24 16:09:16
 ---
 

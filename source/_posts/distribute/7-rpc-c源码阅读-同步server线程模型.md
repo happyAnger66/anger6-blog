@@ -3,8 +3,9 @@ title: 7.gRPC C++源码阅读 同步server线程模型
 tags: []
 id: '360'
 categories:
-  - - rpc
-    - gRPC
+  - 分布式
+  - rpc
+  - gRPC
 date: 2019-05-23 15:34:22
 ---
 

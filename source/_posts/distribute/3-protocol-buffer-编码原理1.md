@@ -3,8 +3,9 @@ title: 3.protocol buffer编码原理详解
 tags: [grpc, protobuf]
 id: '170'
 categories:
-  - - rpc
-    - gRPC
+  - 分布式系统
+  - rpc
+  - gRpc
 date: 2019-05-15 12:17:43
 ---
 
