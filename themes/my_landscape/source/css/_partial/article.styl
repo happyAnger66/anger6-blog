@@ -355,3 +355,23 @@ $article-gallery-ctrl
   &:before
     content: "\f054"
     right: 15px*/
+
+small-screen-share()
+   float: none
+   text-align: center
+   margin: -10px 0 1em 0
+   border-bottom: 1px solid color-border
+   padding-bottom: 'calc(%s - 10px)' % line-height
+   font-size: 0.85em
+   
+.article-social-share.social-share
+   float: right
+   margin: -7px 0 0 10px
+   -webkit-text-stroke-width: 0
+   @media mq-mobile
+     small-screen-share()
+   @media mq-tablet
+     small-screen-share()
+   .social-share-icon
+     border: 0 none
+     margin: 0 3px

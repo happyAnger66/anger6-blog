@@ -1,4 +1,9 @@
 # Header
+cdn:
+   share:
+     js: 'https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js'
+     css: 'https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css'
+
 menu:
   Home: /
   Archives: /archives
