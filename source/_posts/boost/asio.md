@@ -11,6 +11,8 @@ date: 2022-05-05 21:36:53
 
 # Boost.Asio
 
+简单来说,`Boost.Asio`是一个跨平台的c++网络和I/O库,使用它开发者能够使用现代c++语言和一致的异步模型进行程序开发.
+
 ## 背景
 
 大部分程序都需要与外界交互,可能通过文件、网络、或者串口.有时候,网络通信,单个i/o操作需要很长时间完成.这给应用程序开发带来了特殊的挑战.
@@ -24,7 +26,7 @@ Boost.Asio可用来执行同步和异步操作,如socket上的i/o操作.接下�
 
 ##### 先来看一下执行同步连接时发生的操作:
 
-![同步操作](../../images/boost-asio/sync_op.png)
+![同步操作](/images/boost-asio/sync_op.png)
 
 你的程序需要至少有一个`io执行context`,它是一个`boost::asio::io_context`、`boost::asio::thread_pool`、或`boost::asio::system_context`对象.这个`io执行context`将作为代理连接操作系统提供的`io服务`.
 
@@ -65,7 +67,7 @@ socket.connect(server_endpoint, ec);
 
 执行了`异步操作`之后,将发生以下事件:
 
-![异步操作1](../../images/boost-asio/async_op1.png)
+![异步操作1](/images/boost-asio/async_op1.png)
 
 1. 调用`i/o对象`初始化连接操作
 
@@ -85,7 +87,7 @@ void your_completion_handler(const boost::system::error_code& ec);
 3. `i/o执行context`通知操作系统需要执行异步连接.
 时间流逝(在同步操作里,这个时间包含连接操作的全部时间).
 
-![异步操作2](../../images/boost-asio/async_op2.png)
+![异步操作2](/images/boost-asio/async_op2.png)
 
 4. 操作系统通过将执行结果放入一个队列来指示操作完成.这个结果可以被`i/o执行context`取出.
 5. 当使用`io_context`作为`i/o执行context`时,你的程序必须调用`io_context::run`(或者其它类似的成员函数)以检索结果.`io_context::run`在有未完成的异步操作时会一直阻塞,所以你可以在开始第一个异步操作后就调用它.
@@ -98,7 +100,7 @@ void your_completion_handler(const boost::system::error_code& ec);
 
 我们先看一下`Proactor`设计模式在`Boost.Asio`中的实现,其中不包含任何特定平台的细节:
 
-![Proactor](../../images/boost-asio/proactor.png)
+![Proactor](/images/boost-asio/proactor.png)
 
 ##### `Proactor模式`:
 
@@ -279,16 +281,165 @@ my_socket.async_read_some(my_buffer,
       }));
 ```
 
-### Buffers
+#### 无栈协程
 
-从根本上讲,I/O涉及数据传递和连续的内存区域,被称为`buffers`.这些`buffers`可以简单地表述为一个指针和长度构成的元组.然而,为了开发高效的网络应用,`Boost.Asio`提示了`scatter-gather`操作.这些操作涉及一个或多个buffers:
-
-+ 分散(scatter)读将数据读到多个buffers
-+ 聚集(gather)写将多个buffers的数据传递出去
-
-这样,我们需要一个抽象来表示buffer的集合.`Boost.Asio`定义了一个类型用来表示一个单独的buffer,它可以被存在在一个容器中,它可以被传递给`scatter-gather`操作.
+`coroutine`类提供了对无栈协程的支持.无栈协程可以用同步的方式实现异步逻辑,而且开销很小.  
+下面是一个例子:
 
 ```cpp
-typedef std::pair<void*, std::size_t> mutable_buffer;
-typedef std::pair<const void*, std::size_t> const_buffer;
+struct session : boost::asio::coroutine
+{
+  boost::shared_ptr<tcp::socket> socket_;
+  boost::shared_ptr<std::vector<char> > buffer_;
+
+  session(boost::shared_ptr<tcp::socket> socket)
+    : socket_(socket),
+      buffer_(new std::vector<char>(1024))
+  {
+  }
+
+  void operator()(boost::system::error_code ec = boost::system::error_code(), std::size_t n = 0)
+  {
+    if (!ec) reenter (this)
+    {
+      for (;;)
+      {
+        yield socket_->async_read_some(boost::asio::buffer(*buffer_), *this);
+        yield boost::asio::async_write(*socket_, boost::asio::buffer(*buffer_, n), *this);
+      }
+    }
+  }
+};
 ```
+
+`coroutine`类与伪关键字`reenter`,`yield`和`fork`结合起来使用.它们是预编译宏,使用了与[`Duff装置`](https://en.wikipedia.org/wiki/Duff%27s_device)相似的技术.
+
+
+#### 有栈协程
+
+`spawn()`函数是运行有栈协程的一个高层接口.  
+下面是示例代码:
+
+```cpp
+boost::asio::spawn(my_strand, do_echo);
+
+// ...
+
+void do_echo(boost::asio::yield_context yield)
+{
+  try
+  {
+    char data[128];
+    for (;;)
+    {
+      std::size_t length =
+        my_socket.async_read_some(
+          boost::asio::buffer(data), yield);
+
+      boost::asio::async_write(my_socket,
+          boost::asio::buffer(data, length), yield);
+    }
+  }
+  catch (std::exception& e)
+  {
+    // ...
+  }
+```
+
++ `spawn()`的第一个参数可以是`strand`,`io_context`或者`completion handler`.这个参数决定了协程可以执行的`context`.比如,一个服务的每个客户对象可能由多个协程组成;它们应该运行在相同的`strand`上,这样就不需要额外的同步操作.  
+
++ 第二个参数是一个具有如下签名的函数对象:
+
+```cpp
+void coroutine(boost::asio::yield_context yield);
+```
+用于指定协程将要执行的代码.参数`yield`可以在需要的时候作为`completion handler`传递给一个异步操作,比如:  
+```cpp
+std::size_t length =
+  my_socket.async_read_some(
+    boost::asio::buffer(data), yield);
+```
+
+上面的代码开启了一个异步操作并将当前协程挂起,协程将会在异步操作完成后继续执行.  
+异步操作的`handler`签名如下:
+
+```cpp
+void handler(boost::system::error_code ec, result_type result);
+```
+
+初始函数返回`result_type`.在上面的`async_read_some`例子中,是`size_t`.如果异步操作失败,`error_code`会转换成`system_error`异常并抛出.  
+对应的`handler`签名如下:
+```cpp
+void handler(boost::system::error_code ec);
+```
+
+要收集`error_code`而不抛出异常,可以向下面代码那样关联输出到`yield_context`:
+```cpp
+boost::system::error_code ec;
+std::size_t length =
+  my_socket.async_read_some(
+    boost::asio::buffer(data), yield[ec]);
+```
+
+
+`注`:如果对`spawn()`使用定制的`Handler`类型,函数对象的原型如下:
+```cpp
+void coroutine(boost::asio::basic_yield_context<Handler> yield);
+```
+
+### 支持`协程TS`
+
+通过`awaitable`类模板,`use_awaitable`完成标识和`co_spawn()`函数来支持协程TS,这些工具结合使用`co_await`关键字可以使开发者以同步的方式实现异步操作.
+
+```cpp
+boost::asio::co_spawn(executor,
+    [socket = std::move(socket)]() mutable
+    {
+      return echo(std::move(socket));
+    },
+    boost::asio::detached);
+
+// ...
+
+boost::asio::awaitable<void> echo(tcp::socket socket)
+{
+  try
+  {
+    char data[1024];
+    for (;;)
+    {
+      std::size_t n = co_await socket.async_read_some(boost::asio::buffer(data), boost::asio::use_awaitable);
+      co_await async_write(socket, boost::asio::buffer(data, n), boost::asio::use_awaitable);
+    }
+  }
+  catch (std::exception& e)
+  {
+    std::printf("echo Exception: %s\n", e.what());
+  }
+}
+```
+
+`co_spawn()`的第一参数是允许`coroutine`执行的`executor`.比如,一个服务的某个客户端对象可能包含多个协程;为了避免额外的同步操作,它们需要运行在同一个`strand`.
+
+第二个参数是一个返回值为`boost::asio::awaitable<R>`的函数对象,`R`是`coroutine`的返回值,在上面的例子中是void.
+
+第三个参数是一个完成标识,`co_spawn()`用它来创建签名为`void(std::exception_ptr, R)`的完成函数.当协程运行完成时,完成函数会用协程的返回值来调用.上面的例子中是`boost::asio::detached`,代表忽略协程的返回值.
+
+在上面的例子中,协程体由`echo`函数实现.当向异步操作传递`use_awaitable`完成标识时,异步操作的返回值可以使用`co_wait`关键字来获取:
+
+```cpp
+std::size_t n = co_await socket.async_read_some(boost::asio::buffer(data), boost::asio::use_awaitable);
+```
+
+异步操作的`handler`有如下签名:
+```cpp
+void handler(boost::system::error_code ec, result_type result);
+```
+
+这时`co_wait`表达式的返回类型就是`result_type`.上面的`async_read_some`的返回值是`size_t`,如果异步操作失败,`error_code`会转换为`system_error`异常并抛出.此时`handler`签名为:
+```cpp
+void handler(boost::system::error_code ec);
+```
+
+此时`co_wait`产生一个`void`返回值.对于上面例子来说,错误以`system_error`异常的形式传递给协程.
+
